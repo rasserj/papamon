@@ -1,0 +1,5 @@
+{
+  "sylve": { "label": "Sylve", "strong": "flot", "weak": "braise" },
+  "braise": { "label": "Braise", "strong": "sylve", "weak": "flot" },
+  "flot": { "label": "Flot", "strong": "braise", "weak": "sylve" }
+}
