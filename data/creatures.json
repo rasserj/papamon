@@ -1,0 +1,35 @@
+[
+  {
+    "id": "mousselin",
+    "name": "Mousselin",
+    "type": "sylve",
+    "hp": 44,
+    "atk": 12,
+    "spd": 9,
+    "top": "sprout",
+    "colors": ["#4caf50", "#a5e08a"],
+    "moves": ["charge", "fouet"]
+  },
+  {
+    "id": "cendrille",
+    "name": "Cendrille",
+    "type": "braise",
+    "hp": 40,
+    "atk": 14,
+    "spd": 11,
+    "top": "flame",
+    "colors": ["#e8643c", "#ffd36b"],
+    "moves": ["charge", "etincelle"]
+  },
+  {
+    "id": "gouttelin",
+    "name": "Gouttelin",
+    "type": "flot",
+    "hp": 46,
+    "atk": 11,
+    "spd": 10,
+    "top": "drop",
+    "colors": ["#3f8fe0", "#9fd8ff"],
+    "moves": ["charge", "jet"]
+  }
+]

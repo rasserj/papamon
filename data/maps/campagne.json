@@ -1,0 +1,27 @@
+{
+  "id": "campagne",
+  "name": "Campagne",
+  "width": 12,
+  "height": 10,
+  "tileSize": 16,
+  "playerStart": { "x": 5, "y": 5 },
+  "legend": {
+    ".": { "type": "grass", "walkable": true, "color": "#4a854d" },
+    ",": { "type": "tall_grass", "walkable": true, "color": "#3f7a42", "wild": true },
+    "p": { "type": "path", "walkable": true, "color": "#bca371" },
+    "t": { "type": "tree", "walkable": false, "color": "#1f4a25" },
+    "w": { "type": "water", "walkable": false, "color": "#3b72a8" }
+  },
+  "grid": [
+    "tttttttttttt",
+    "t..........t",
+    "t.pppppp...,t",
+    "t.p....p..,,t",
+    "t.p....p..,,t",
+    "t.pppppp....t",
+    "t......,,...t",
+    "t.wwww.,,...t",
+    "t.wwww......t",
+    "tttttttttttt"
+  ]
+}
