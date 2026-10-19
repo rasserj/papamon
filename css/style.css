@@ -247,3 +247,19 @@ button small {
 #moves .full {
   grid-column: 1 / -1;
 }
+
+.battle-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-action {
+  background: #5a312f;
+  width: 100%;
+}
+
+.btn-action:active:not(:disabled) {
+  background: #733c3a;
+}

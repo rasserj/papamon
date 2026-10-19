@@ -22,7 +22,6 @@ async function init() {
 
   const canvas = document.querySelector('#mapCanvas');
   mapEngine = new MapEngine(canvas, () => {
-    // Wild encounter triggered
     triggerWildEncounter();
   });
 
@@ -38,9 +37,11 @@ async function startMapExploration() {
 }
 
 function triggerWildEncounter() {
-  combatEngine.startBattle(selectedCreature, null, (playerWon) => {
-    // Return to map exploration after combat
-    startMapExploration();
+  combatEngine.startBattle(selectedCreature, null, {
+    isWild: true,
+    onEndCallback: (playerWon, reason) => {
+      startMapExploration();
+    }
   });
 }
 

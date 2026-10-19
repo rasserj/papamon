@@ -13,6 +13,7 @@ export class CombatEngine {
     this.me = null;
     this.foe = null;
     this.busy = true;
+    this.isWild = true;
     this.onBattleEnd = null;
 
     this.setupKeyboard();
@@ -24,6 +25,15 @@ export class CombatEngine {
       const btns = [...document.querySelectorAll('#moves button')];
       const i = parseInt(e.key, 10) - 1;
       if (btns[i] && !btns[i].disabled) btns[i].click();
+      if ((e.key === 'f' || e.key === 'F' || e.key === 'Escape') && !this.busy) {
+        if (this.isWild) {
+          const fleeBtn = $('#fleeBtn');
+          if (fleeBtn && !fleeBtn.disabled) fleeBtn.click();
+        } else {
+          const forfeitBtn = $('#forfeitBtn');
+          if (forfeitBtn && !forfeitBtn.disabled) forfeitBtn.click();
+        }
+      }
     });
   }
 
@@ -49,7 +59,7 @@ export class CombatEngine {
   }
 
   setMoveButtons(enabled) {
-    document.querySelectorAll('#moves button').forEach((b) => { b.disabled = !enabled; });
+    document.querySelectorAll('#moves button, #battleActions button').forEach((b) => { b.disabled = !enabled; });
   }
 
   buildSelect(container, onSelect) {
@@ -66,8 +76,9 @@ export class CombatEngine {
     });
   }
 
-  async startBattle(playerCreature, foeCreature = null, onEndCallback = null) {
-    this.onBattleEnd = onEndCallback;
+  async startBattle(playerCreature, foeCreature = null, options = {}) {
+    this.isWild = options.isWild !== undefined ? options.isWild : true;
+    this.onBattleEnd = options.onEndCallback || null;
     this.me = this.fighter(playerCreature);
     this.foe = this.fighter(foeCreature || pick(this.creatures));
 
@@ -84,8 +95,8 @@ export class CombatEngine {
     });
     this.updateBars();
 
-    const box = $('#moves');
-    box.replaceChildren();
+    const movesBox = $('#moves');
+    movesBox.replaceChildren();
     this.me.base.moves.forEach((id) => {
       const m = this.moves[id];
       if (!m) return;
@@ -93,16 +104,72 @@ export class CombatEngine {
       const moveTypeLabel = m.type && this.types[m.type] ? this.types[m.type].label : 'Normal';
       b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power}</small>`;
       b.addEventListener('click', () => this.playTurn(id));
-      box.appendChild(b);
+      movesBox.appendChild(b);
     });
+
+    const actionsBox = $('#battleActions');
+    actionsBox.replaceChildren();
+    if (this.isWild) {
+      const fleeBtn = document.createElement('button');
+      fleeBtn.id = 'fleeBtn';
+      fleeBtn.className = 'btn-action btn-flee';
+      fleeBtn.innerHTML = 'Fuire <small>Tenter d’échapper au combat</small>';
+      fleeBtn.addEventListener('click', () => this.attemptFlee());
+      actionsBox.appendChild(fleeBtn);
+    } else {
+      const forfeitBtn = document.createElement('button');
+      forfeitBtn.id = 'forfeitBtn';
+      forfeitBtn.className = 'btn-action btn-forfeit';
+      forfeitBtn.innerHTML = 'Abandonner <small>Déclarer forfait (défaite)</small>';
+      forfeitBtn.addEventListener('click', () => this.forfeit());
+      actionsBox.appendChild(forfeitBtn);
+    }
+
     this.setMoveButtons(false);
 
     this.busy = true;
-    say(`${this.foe.base.name} sauvage apparaît !`);
+    say(this.isWild ? `${this.foe.base.name} sauvage apparaît !` : `Un dresseur envoie ${this.foe.base.name} !`);
     await wait(1200);
     say(`Que doit faire ${this.me.base.name} ?`);
     this.setMoveButtons(true);
     this.busy = false;
+  }
+
+  async forfeit() {
+    if (this.busy) return;
+    this.busy = true;
+    this.setMoveButtons(false);
+
+    say(`Tu abandonnes le combat !`);
+    await wait(1100);
+    await this.finishBattle(false, 'Abandon');
+  }
+
+  async attemptFlee() {
+    if (this.busy) return;
+    this.busy = true;
+    this.setMoveButtons(false);
+
+    say(`${this.me.base.name} tente de fuir !`);
+    await wait(800);
+
+    // Speed velocity comparison: if wild foe is strictly faster, it gets an attack before player flees
+    if (this.foe.base.spd > this.me.base.spd) {
+      say(`${this.foe.base.name} est plus rapide et t’attaque avant ta fuite !`);
+      await wait(900);
+
+      const fMove = this.moves[pick(this.foe.base.moves)];
+      await this.attack(this.foe, this.me, fMove, 'me');
+
+      if (this.me.hp <= 0) {
+        await this.endBattle(false, this.me);
+        return;
+      }
+    }
+
+    say(`Tu as pris la fuite avec succès !`);
+    await wait(1100);
+    await this.finishBattle(false, 'Fuite');
   }
 
   async attack(att, def, move, defSlot) {
@@ -152,16 +219,20 @@ export class CombatEngine {
     say(`${loser.base.name} est K.O. !`);
     await wait(1100);
     say(playerWon ? 'Victoire ! Bravo !' : 'Défaite… ce sera pour la prochaine fois.');
+    await this.finishBattle(playerWon, 'KO');
+  }
 
+  async finishBattle(playerWon, reason) {
     const box = $('#moves');
     box.replaceChildren();
+    $('#battleActions').replaceChildren();
 
     const b = document.createElement('button');
     b.className = 'full';
     b.textContent = this.onBattleEnd ? 'Continuer l’exploration' : 'Rejouer';
     b.addEventListener('click', () => {
       if (this.onBattleEnd) {
-        this.onBattleEnd(playerWon);
+        this.onBattleEnd(playerWon, reason);
       } else {
         $('#battle').hidden = true;
         $('#select').hidden = false;
