@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#16231b">
-<title>PapaMon</title>
+<title>PapaMon v0.2.1</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,13 +14,13 @@
     <h1>PapaMon</h1>
     <p class="sub">Choisis ton compagnon</p>
     <div id="starters"></div>
-    <p class="hint">v0.2 · exploration & combat</p>
+    <p class="hint">v0.2.1 · exploration & combat</p>
   </section>
 
   <!-- Exploration Map view -->
   <section id="map" hidden>
     <h1>Campagne</h1>
-    <p class="sub">Deplace-toi avec les fleches ou le pave tactile</p>
+    <p class="sub">Déplace-toi avec les flèches ou le pavé tactile</p>
     <div class="map-container">
       <canvas id="mapCanvas"></canvas>
     </div>
@@ -41,13 +41,13 @@
   <section id="battle" hidden>
     <div class="arena">
       <div class="row foe">
-        <div class="card"><span class="name" id="foeName"></span><span class="type" id="foeType"></span>
+        <div class="card"><span class="name" id="foeName"></span><span class="quality-badge" id="foeQuality"></span><span class="type" id="foeType"></span>
           <div class="bar"><i id="foeBar"></i></div><small id="foeHp"></small></div>
         <div id="foeSprite"></div>
       </div>
       <div class="row me">
         <div id="meSprite"></div>
-        <div class="card"><span class="name" id="meName"></span><span class="type" id="meType"></span>
+        <div class="card"><span class="name" id="meName"></span><span class="quality-badge" id="meQuality"></span><span class="type" id="meType"></span>
           <div class="bar"><i id="meBar"></i></div><small id="meHp"></small></div>
       </div>
     </div>

@@ -69,7 +69,8 @@ export class CombatEngine {
       b.appendChild(makeCreatureSprite(c));
       const t = document.createElement('div');
       const typeLabel = this.types[c.type] ? this.types[c.type].label : c.type;
-      t.innerHTML = `${c.name}<small>Type ${typeLabel} · PV ${c.hp}</small>`;
+      const quality = c.quality || 'C';
+      t.innerHTML = `${c.name} <small>[Qualité ${quality}] · Type ${typeLabel} · PV ${c.hp}</small>`;
       b.appendChild(t);
       b.addEventListener('click', () => onSelect(c));
       container.appendChild(b);
@@ -88,6 +89,9 @@ export class CombatEngine {
 
     [['me', this.me], ['foe', this.foe]].forEach(([id, f]) => {
       $('#' + id + 'Name').textContent = f.base.name;
+      const quality = f.base.quality || 'C';
+      const qBadge = $('#' + id + 'Quality');
+      if (qBadge) qBadge.textContent = ` [${quality}]`;
       const typeLabel = this.types[f.base.type] ? this.types[f.base.type].label : f.base.type;
       $('#' + id + 'Type').textContent = typeLabel;
       const slot = $('#' + id + 'Sprite');
@@ -153,7 +157,7 @@ export class CombatEngine {
     say(`${this.me.base.name} tente de fuir !`);
     await wait(800);
 
-    // Speed velocity comparison: if wild foe is strictly faster, it gets an attack before player flees
+    // Speed velocity comparison
     if (this.foe.base.spd > this.me.base.spd) {
       say(`${this.foe.base.name} est plus rapide et t’attaque avant ta fuite !`);
       await wait(900);
@@ -181,7 +185,10 @@ export class CombatEngine {
       return;
     }
     const mult = this.typeMult(move.type, def.base.type);
-    const dmg = Math.max(1, Math.round(move.power * att.base.atk / 50 * mult * (0.85 + Math.random() * 0.15)));
+    const targetDef = def.base.def || 0;
+    // Formula incorporating defense: power * atk / (50 + def) * mult * (0.85 + rand * 0.15)
+    const dmg = Math.max(1, Math.round(move.power * att.base.atk / (50 + targetDef) * mult * (0.85 + Math.random() * 0.15)));
+
     const sprite = $('#' + defSlot + 'Sprite');
     sprite.classList.add('hit');
     def.hp = Math.max(0, def.hp - dmg);
@@ -227,18 +234,19 @@ export class CombatEngine {
     box.replaceChildren();
     $('#battleActions').replaceChildren();
 
-    const b = document.createElement('button');
-    b.className = 'full';
-    b.textContent = this.onBattleEnd ? 'Continuer l’exploration' : 'Rejouer';
-    b.addEventListener('click', () => {
-      if (this.onBattleEnd) {
-        this.onBattleEnd(playerWon, reason);
-      } else {
+    if (this.onBattleEnd) {
+      await wait(1200);
+      this.onBattleEnd(playerWon, reason);
+    } else {
+      const b = document.createElement('button');
+      b.className = 'full';
+      b.textContent = 'Rejouer';
+      b.addEventListener('click', () => {
         $('#battle').hidden = true;
         $('#select').hidden = false;
-      }
-    });
-    box.appendChild(b);
-    b.focus();
+      });
+      box.appendChild(b);
+      b.focus();
+    }
   }
 }
