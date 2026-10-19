@@ -195,6 +195,12 @@ button small {
   font-weight: 700;
 }
 
+.quality-badge {
+  font-size: .85rem;
+  color: #ffd36b;
+  font-weight: 700;
+}
+
 .card .type {
   color: var(--muted);
   font-size: .85rem;
