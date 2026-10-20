@@ -1,6 +1,6 @@
 # Qualité, niveaux, évolution et rareté
 
-*Les points marqués **[Décidé]** viennent de Jérémy. **[Proposition]** : valeur ou mécanique à équilibrer en jouant. **[À confirmer]** : interprétation à valider. Rien de ceci n’est encore implémenté.*
+*Les points marqués **[Décidé]** viennent de Jérémy. **[Proposition]** : valeur ou mécanique à équilibrer en jouant. **[À confirmer]** : interprétation à valider.*
 
 ## 1. Décisions
 
@@ -15,7 +15,8 @@
 
 ## 2. Statistiques
 
-Liste visée : **PV, attaque, défense, endurance, vitesse** (d’autres pourront s’ajouter). En v0.1 il n’existe que PV, attaque et vitesse.
+Liste visée : **PV, attaque, défense, endurance, vitesse** (d’autres pourront s’ajouter).
+En v0.2.1, **PV, attaque, défense et vitesse** sont entièrement implémentés dans le moteur de combat.
 
 **Trois valeurs par statistique** **[Décidé]** :
 
@@ -34,23 +35,19 @@ Liste visée : **PV, attaque, défense, endurance, vitesse** (d’autres pourron
 | Stat max | 150 % de la stat de base naturelle du niveau |
 | Stat min | 50 % de la stat de base |
 
-**Exemple** : attaque de référence 12, qualité C, niveau 10. Base naturelle : 12 × 1,00 × 1,36 ≈ 16. Max ≈ 24. Min ≈ 8. Un renforcement peut donc pousser l’attaque courante jusqu’à 24 le temps d’un combat, un affaiblissement ne la fera pas descendre sous 8, et des objets peuvent faire passer la base de 16 jusqu’à 24 de façon durable.
+**Formule de Dégâts (Implémentée v0.2.1)** : `dégâts = max(1, Math.round(power * atk / (50 + def) * mult * (0.85 + rand * 0.15)))`.
 
-**Défense** : elle suppose de revoir la formule de dégâts. **[Proposition]** `dégâts × 50 ÷ (50 + défense)`, à équilibrer avec l’attaque.
+## 3. Qualité et Probabilités d'apparition (Implémenté en v0.2.1)
 
-## 3. Qualité
+La qualité applique un multiplicateur aux stats de référence de l’espèce et fixe la probabilité de rencontrer la créature à l'état sauvage :
 
-**[Proposition]** La qualité applique un multiplicateur aux stats de référence de l’espèce, et fixe la probabilité de la rencontrer à l’état sauvage.
-
-| Qualité | Multiplicateur des stats | Probabilité d’apparition |
+| Qualité | Multiplicateur des stats | Probabilité d’apparition sauvage |
 |---|---|---|
 | D | × 0,90 | 50 % |
 | C | × 1,00 | 30 % |
 | B | × 1,10 | 14 % |
 | A | × 1,25 | 5 % |
 | S | × 1,40 | 1 % |
-
-Les probabilités pourront varier selon le biome et l’espèce.
 
 ## 4. Niveaux et expérience
 
@@ -66,19 +63,16 @@ Les probabilités pourront varier selon le biome et l’espèce.
 | 20 | 4 000 |
 | 40 | 16 000 |
 
-- **Gain d’expérience par combat** : le vainqueur reçoit `12 × niveau de l’adversaire`, le vaincu **40 %** de ce montant. Le gain est multiplié par le rapport entre le niveau de l’adversaire et celui du compagnon, borné entre 0,5 et 2.
-- **Exemples** : un compagnon de niveau 5 qui bat un niveau 5 gagne 60 (environ 4 victoires pour monter) ; au niveau 20 contre un niveau 20, il gagne 240 (environ 17 victoires) et 96 s’il est vaincu.
+- **Gain d’expérience par combat** : le vainqueur reçoit `12 × niveau de l’adversaire`, le vaincu **40 %** de ce montant.
 - **Intelligent** : +25 % d’expérience.
-- **Croissance des stats** : chaque niveau ajoute environ **4 %** des stats de référence. Exemple : un compagnon de qualité C avec 12 d’attaque au niveau 1 en aura environ 21 au niveau 20.
 
 ## 5. Moves et évolution
 
-- Chaque espèce a une **table d’apprentissage** (niveau, move). Exemple pour Mousselin : niveau 1 Charge et Fouet-liane ; niveau 6 Carapace ; niveau 12 Pas de côté ; niveau 18 Baume de mousse ; niveau 35 Sève vitale (réanimation, rare).
-- **Évolution** : à un niveau donné, ou sous une autre condition à définir. Elle change l’apparence, les stats de référence, les moves disponibles, et **peut modifier le trait de caractère** (**[Décidé]**).
+- Chaque espèce a une **table d’apprentissage** (niveau, move).
+- **Évolution** : change l’apparence, les stats de référence, les moves disponibles, et **peut modifier le trait de caractère** (**[Décidé]**).
 
 ## 6. Rareté et fusion
 
-- **Rareté** : voir le tableau de la partie 3.
 - **Fusion** **[Proposition]** : pour passer à la qualité supérieure, on cumule des exemplaires supplémentaires de la **même espèce** :
 
 | Passage | Exemplaires supplémentaires |
@@ -88,13 +82,9 @@ Les probabilités pourront varier selon le biome et l’espèce.
 | B vers A | 5 |
 | A vers S | 8 |
 
-Pour aller de D à S, il faut donc 18 doublons, alors qu’un S sauvage n’apparaît qu’une fois sur cent : la fusion est la voie principale vers le sommet.
+## 7. Questions ouvertes (à arbitrer)
 
-## 7. Questions ouvertes
-
-1. **Min et plafond** : valeurs à valider (propositions : 50 % de la stat de base pour le min, 150 % de la base naturelle pour le max). Quelle limite de bonus permanent par objet ?
-2. Les compagnons en réserve (qui ne combattent pas) gagnent-ils de l’expérience ?
-3. Fusion : quel exemplaire garde son niveau et son trait ? Les doublons sont-ils consommés ? Peut-on fusionner des niveaux différents ?
-4. Niveau maximum et conditions d’évolution (niveau seul, objet, lieu…).
-5. La qualité d’un compagnon sauvage est-elle visible avant la capture ?
-6. Tous les chiffres sont à équilibrer par essais successifs.
+1. **Visibilité de la qualité** : La qualité d'une créature sauvage doit-elle être visible dès l'apparition sauvage (actuellement affichée), ou masquée jusqu'à sa capture ?
+2. **Gain d'expérience en réserve** : Les compagnons dans l'équipe qui ne combattent pas reçoivent-ils une fraction de l'expérience ?
+3. **Modalités de fusion** : Lors d'une fusion de doublons, quel compagnon conserve son niveau/stats ?
+4. **Conditions d'évolution** : Évolution par niveau uniquement ou besoin d'objets/pierres ?

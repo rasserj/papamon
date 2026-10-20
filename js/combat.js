@@ -5,6 +5,37 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const say = (t) => { $('#msg').textContent = t; };
 
+const QUALITY_RATES = [
+  { quality: 'D', mult: 0.90, prob: 0.50 },
+  { quality: 'C', mult: 1.00, prob: 0.30 },
+  { quality: 'B', mult: 1.10, prob: 0.14 },
+  { quality: 'A', mult: 1.25, prob: 0.05 },
+  { quality: 'S', mult: 1.40, prob: 0.01 },
+];
+
+export function rollWildQuality() {
+  const rand = Math.random();
+  let cumulative = 0;
+  for (const q of QUALITY_RATES) {
+    cumulative += q.prob;
+    if (rand < cumulative) return q;
+  }
+  return QUALITY_RATES[1]; // fallback C
+}
+
+export function applyQualityToCreature(baseCreature, qualityInfo = null) {
+  const q = qualityInfo || rollWildQuality();
+  const mult = q.mult;
+  return {
+    ...baseCreature,
+    quality: q.quality,
+    hp: Math.max(10, Math.round(baseCreature.hp * mult)),
+    atk: Math.max(1, Math.round(baseCreature.atk * mult)),
+    def: Math.max(1, Math.round((baseCreature.def || 10) * mult)),
+    spd: Math.max(1, Math.round(baseCreature.spd * mult)),
+  };
+}
+
 export class CombatEngine {
   constructor(types, moves, creatures) {
     this.types = types;
@@ -81,7 +112,10 @@ export class CombatEngine {
     this.isWild = options.isWild !== undefined ? options.isWild : true;
     this.onBattleEnd = options.onEndCallback || null;
     this.me = this.fighter(playerCreature);
-    this.foe = this.fighter(foeCreature || pick(this.creatures));
+
+    const rawFoe = foeCreature || pick(this.creatures);
+    const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe) : rawFoe;
+    this.foe = this.fighter(generatedFoe);
 
     $('#select').hidden = true;
     $('#map').hidden = true;
@@ -132,7 +166,7 @@ export class CombatEngine {
     this.setMoveButtons(false);
 
     this.busy = true;
-    say(this.isWild ? `${this.foe.base.name} sauvage apparaît !` : `Un dresseur envoie ${this.foe.base.name} !`);
+    say(this.isWild ? `${this.foe.base.name} (Qualité ${this.foe.base.quality}) sauvage apparaît !` : `Un dresseur envoie ${this.foe.base.name} !`);
     await wait(1200);
     say(`Que doit faire ${this.me.base.name} ?`);
     this.setMoveButtons(true);
@@ -157,7 +191,6 @@ export class CombatEngine {
     say(`${this.me.base.name} tente de fuir !`);
     await wait(800);
 
-    // Speed velocity comparison
     if (this.foe.base.spd > this.me.base.spd) {
       say(`${this.foe.base.name} est plus rapide et t’attaque avant ta fuite !`);
       await wait(900);
@@ -186,7 +219,6 @@ export class CombatEngine {
     }
     const mult = this.typeMult(move.type, def.base.type);
     const targetDef = def.base.def || 0;
-    // Formula incorporating defense: power * atk / (50 + def) * mult * (0.85 + rand * 0.15)
     const dmg = Math.max(1, Math.round(move.power * att.base.atk / (50 + targetDef) * mult * (0.85 + Math.random() * 0.15)));
 
     const sprite = $('#' + defSlot + 'Sprite');

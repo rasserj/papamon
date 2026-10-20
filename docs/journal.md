@@ -2,6 +2,12 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (v0.2.1 - Tirage aléatoire de qualité sauvage)
+
+- Implémentation du tirage aléatoire de la qualité des créatures sauvages (D: 50%, C: 30%, B: 14%, A: 5%, S: 1%).
+- Application dynamique du multiplicateur de qualité aux statistiques (`hp`, `atk`, `def`, `spd`) des créatures sauvages générées.
+- Mise à jour des documents `docs/qualite-et-progression.md` et `docs/journal.md`.
+
 ## 2026-10-18 (v0.2.1)
 
 - Incrémentation du numéro de version visible à l'écran : **v0.2.1**.
