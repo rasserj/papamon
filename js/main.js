@@ -6,13 +6,14 @@ let mapEngine = null;
 let selectedCreature = null;
 
 async function init() {
-  const [types, moves, creatures] = await Promise.all([
+  const [types, moves, creatures, qualities] = await Promise.all([
     fetch('./data/types.json').then((r) => r.json()),
     fetch('./data/moves.json').then((r) => r.json()),
-    fetch('./data/creatures.json').then((r) => r.json())
+    fetch('./data/creatures.json').then((r) => r.json()),
+    fetch('./data/qualities.json').then((r) => r.json())
   ]);
 
-  combatEngine = new CombatEngine(types, moves, creatures);
+  combatEngine = new CombatEngine(types, moves, creatures, qualities);
 
   const startersBox = document.querySelector('#starters');
   combatEngine.buildSelect(startersBox, (creature) => {
@@ -36,11 +37,21 @@ async function startMapExploration() {
   await mapEngine.loadMap('./data/maps/campagne.json');
 }
 
+function returnToMap() {
+  document.querySelector('#select').hidden = true;
+  document.querySelector('#battle').hidden = true;
+  document.querySelector('#map').hidden = false;
+
+  if (mapEngine) {
+    mapEngine.render();
+  }
+}
+
 function triggerWildEncounter() {
   combatEngine.startBattle(selectedCreature, null, {
     isWild: true,
     onEndCallback: (playerWon, reason) => {
-      startMapExploration();
+      returnToMap();
     }
   });
 }

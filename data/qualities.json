@@ -1,0 +1,7 @@
+[
+  { "quality": "D", "mult": 0.90, "prob": 0.50 },
+  { "quality": "C", "mult": 1.00, "prob": 0.30 },
+  { "quality": "B", "mult": 1.10, "prob": 0.14 },
+  { "quality": "A", "mult": 1.25, "prob": 0.05 },
+  { "quality": "S", "mult": 1.40, "prob": 0.01 }
+]
