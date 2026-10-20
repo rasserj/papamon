@@ -5,7 +5,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const say = (t) => { $('#msg').textContent = t; };
 
-const QUALITY_RATES = [
+const DEFAULT_QUALITY_RATES = [
   { quality: 'D', mult: 0.90, prob: 0.50 },
   { quality: 'C', mult: 1.00, prob: 0.30 },
   { quality: 'B', mult: 1.10, prob: 0.14 },
@@ -13,18 +13,19 @@ const QUALITY_RATES = [
   { quality: 'S', mult: 1.40, prob: 0.01 },
 ];
 
-export function rollWildQuality() {
+export function rollWildQuality(qualitiesList = null) {
+  const rates = (qualitiesList && qualitiesList.length > 0) ? qualitiesList : DEFAULT_QUALITY_RATES;
   const rand = Math.random();
   let cumulative = 0;
-  for (const q of QUALITY_RATES) {
+  for (const q of rates) {
     cumulative += q.prob;
     if (rand < cumulative) return q;
   }
-  return QUALITY_RATES[1]; // fallback C
+  return rates[1] || rates[0]; // fallback
 }
 
-export function applyQualityToCreature(baseCreature, qualityInfo = null) {
-  const q = qualityInfo || rollWildQuality();
+export function applyQualityToCreature(baseCreature, qualityInfo = null, qualitiesList = null) {
+  const q = qualityInfo || rollWildQuality(qualitiesList);
   const mult = q.mult;
   return {
     ...baseCreature,
@@ -37,10 +38,11 @@ export function applyQualityToCreature(baseCreature, qualityInfo = null) {
 }
 
 export class CombatEngine {
-  constructor(types, moves, creatures) {
+  constructor(types, moves, creatures, qualities = null) {
     this.types = types;
     this.moves = moves;
     this.creatures = creatures;
+    this.qualities = qualities;
     this.me = null;
     this.foe = null;
     this.busy = true;
@@ -51,6 +53,7 @@ export class CombatEngine {
   }
 
   setupKeyboard() {
+    if (typeof document === 'undefined') return;
     document.addEventListener('keydown', (e) => {
       if ($('#battle').hidden) return;
       const btns = [...document.querySelectorAll('#moves button')];
@@ -114,7 +117,7 @@ export class CombatEngine {
     this.me = this.fighter(playerCreature);
 
     const rawFoe = foeCreature || pick(this.creatures);
-    const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe) : rawFoe;
+    const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe, null, this.qualities) : rawFoe;
     this.foe = this.fighter(generatedFoe);
 
     $('#select').hidden = true;

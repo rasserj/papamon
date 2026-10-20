@@ -2,6 +2,14 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (v0.2.3 - Fréquence des qualités & Position sur carte après combat)
+
+- Incrémentation officielle de la version affichée : **v0.2.3**.
+- Externalisation des probabilités d'apparition des qualités et multiplicateurs dans un fichier JSON dédié (`data/qualities.json`).
+- Chargement et injection des données de qualités dans le moteur de combat pour la génération des rencontres sauvages.
+- Correction du retour de combat : le joueur conserve exactement sa position sur la carte à la fin d'un combat sans réinitialisation au point de départ de la carte.
+- Mise à jour de `index.html` et de la documentation (`docs/moteur-de-combat.md`, `docs/journal.md`).
+
 ## 2026-10-18 (Incrémentation v0.2.2)
 
 - Incrémentation officielle de la version affichée : **v0.2.2**.
