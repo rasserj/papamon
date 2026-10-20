@@ -56,7 +56,7 @@ Les probabilités pourront varier selon le biome et l’espèce.
 
 **[Proposition]**
 
-- **Niveau maximum** : 50.
+- **Niveau maximum** : 100.
 - **Expérience pour passer du niveau `n` au suivant** : `10 × n²`, donc de plus en plus difficile.
 
 | Niveau actuel | Expérience nécessaire pour le suivant |
@@ -79,16 +79,16 @@ Les probabilités pourront varier selon le biome et l’espèce.
 ## 6. Rareté et fusion
 
 - **Rareté** : voir le tableau de la partie 3.
-- **Fusion** **[Proposition]** : pour passer à la qualité supérieure, on cumule des exemplaires supplémentaires de la **même espèce** :
+- **Fusion** **[Proposition]** : pour passer à la qualité supérieure, on cumule des exemplaires supplémentaires de la **même espèce** et de la **même qualité**:
 
 | Passage | Exemplaires supplémentaires |
 |---|---|
-| D vers C | 2 |
-| C vers B | 3 |
-| B vers A | 5 |
-| A vers S | 8 |
+| D vers C | 2 D |
+| C vers B | 3 C |
+| B vers A | 5 B |
+| A vers S | 8 A |
 
-Pour aller de D à S, il faut donc 18 doublons, alors qu’un S sauvage n’apparaît qu’une fois sur cent : la fusion est la voie principale vers le sommet.
+Pour aller de D à S, il faut donc 18 doublons (sans prise en compte de la qualité dans cet exemple !en ne prenant que des qualités D, 80 créatures nécessaires), alors qu’un S sauvage n’apparaît qu’une fois sur cent : la fusion est la voie principale vers le sommet.
 
 ## 7. Questions ouvertes
 
