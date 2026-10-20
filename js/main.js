@@ -37,21 +37,11 @@ async function startMapExploration() {
   await mapEngine.loadMap('./data/maps/campagne.json');
 }
 
-function returnToMap() {
-  document.querySelector('#select').hidden = true;
-  document.querySelector('#battle').hidden = true;
-  document.querySelector('#map').hidden = false;
-
-  if (mapEngine) {
-    mapEngine.render();
-  }
-}
-
 function triggerWildEncounter() {
   combatEngine.startBattle(selectedCreature, null, {
     isWild: true,
     onEndCallback: (playerWon, reason) => {
-      returnToMap();
+      startMapExploration();
     }
   });
 }

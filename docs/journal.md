@@ -7,7 +7,7 @@ Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne 
 - Incrémentation officielle de la version affichée : **v0.2.3**.
 - Externalisation des probabilités d'apparition des qualités et multiplicateurs dans un fichier JSON dédié (`data/qualities.json`).
 - Chargement et injection des données de qualités dans le moteur de combat pour la génération des rencontres sauvages.
-- Correction du retour de combat : le joueur conserve exactement sa position sur la carte à la fin d'un combat sans réinitialisation au point de départ de la carte.
+- Gestion du retour de combat : le joueur retourne au point de départ / centre de la carte (`playerStart`) à l'issue de chaque combat (victoire, fuite ou abandon).
 - Mise à jour de `index.html` et de la documentation (`docs/moteur-de-combat.md`, `docs/journal.md`).
 
 ## 2026-10-18 (Incrémentation v0.2.2)

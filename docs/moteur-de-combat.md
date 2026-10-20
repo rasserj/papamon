@@ -18,7 +18,7 @@ Chaque combat démarre avec les PV au maximum.
 3. **Tour** : le joueur choisit une attaque, la fuite ou l'abandon.
 4. **Ordre d’action** : la créature avec la plus grande **vitesse** (`spd`) agit en premier. En cas d’égalité, tirage à pile ou face. L’ordre est fixé au début du tour.
 5. **Chaque attaque** : message « X utilise Y ! », test de précision, calcul des dégâts (intégrant la défense de la cible), mise à jour de la barre de PV, message d’efficacité éventuel.
-6. **Fin de combat** : retour automatique à la carte d'exploration au même point où se trouvait le joueur avant le début du combat.
+6. **Fin de combat** : retour automatique à la carte d'exploration au point de départ (`playerStart`, centre de la carte).
 
 Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`).
 
