@@ -1,16 +1,18 @@
 # Qualité, niveaux, évolution et rareté
 
-*Les points marqués **[Décidé]** viennent de Jérémy. **[Proposition]** : valeur ou mécanique à équilibrer en jouant. **[À confirmer]** : interprétation à valider.*
+*Les points marqués **[Décidé]** sont validés. **[Proposition]** : valeur ou mécanique à équilibrer en jouant.*
 
 ## 1. Décisions
 
 - **[Décidé]** Chaque compagnon a une **qualité visible** : **D, C, B, A, S** (S est la meilleure). Elle préjuge de ses **stats de base** et de ses **stats max** (attaque, défense, endurance, vitesse…).
+- **[Décidé]** **Visibilité de la qualité sauvage** : La qualité d'une créature sauvage est **directement visible dès son apparition en combat** (ex: `[D]`, `[C]`, `[B]`, `[A]`, `[S]`).
 - **[Décidé]** Un compagnon **monte de niveau en combattant**, comme dans Pokémon, mais **le vaincu progresse aussi**, moins vite.
+- **[Décidé]** **Compagnons en réserve** : Les compagnons de l'équipe restant en réserve et n'ayant pas participé au combat ne reçoivent **pas d'expérience** (0 XP).
 - **[Décidé]** Chaque niveau augmente les stats de base et les stats max. Monter de niveau est **de plus en plus difficile**.
-- **[Décidé]** Les **stats max** sont un plafond qui monte lui-même avec le niveau. Il peut être atteint **temporairement** pendant un combat, ou **de façon permanente** grâce à des objets qui améliorent les stats de base. Un **minimum** est aussi à prévoir.
-- **[Décidé]** Un niveau permet d’**apprendre de nouveaux moves** et parfois d’**évoluer**.
+- **[Décidé]** Les **stats max** sont un plafond qui monte lui-même avec le niveau.
 - **[Décidé]** Dans la nature, plus la qualité est haute, plus elle est **rare**.
-- **[Décidé]** **Cumuler plusieurs exemplaires** du même compagnon améliore sa qualité ; la quantité nécessaire augmente à chaque rang.
+- **[Décidé]** **Progression issue de la vie en groupe** (fusion de doublons) : Cumuler plusieurs exemplaires du même compagnon améliore sa qualité. Le compagnon principal au **niveau le plus élevé conserve son niveau, ses statistiques et son trait de caractère**, et les doublons secondaires sont consommés pour faire grimper sa qualité.
+- **[Décidé]** **Évolution spécifique par espèce** : L'évolution est propre à chaque espèce et peut être déclenchée par un **niveau fixe** (ex: niveau 16), un **objet spécifique** (ex: pierre élémentaire) ou des **conditions de biome** (ex: au bord de l'eau ou en montagne).
 - **[Décidé]** Le trait de caractère *intelligent* accélère la progression ; une évolution peut modifier le trait (voir `traits-de-caractere.md`).
 
 ## 2. Statistiques
@@ -69,22 +71,20 @@ La qualité applique un multiplicateur aux stats de référence de l’espèce e
 ## 5. Moves et évolution
 
 - Chaque espèce a une **table d’apprentissage** (niveau, move).
-- **Évolution** : change l’apparence, les stats de référence, les moves disponibles, et **peut modifier le trait de caractère** (**[Décidé]**).
+- **Évolution [Décidé]** : Chaque espèce possède ses propres critères d'évolution spécifiés dans sa fiche (`data/creatures.json`).
+  - Exemple 1 (par niveau) : Mousselin évolue au niveau 16.
+  - Exemple 2 (par objet) : Cendrille évolue avec une Pierre de Braise.
+  - Exemple 3 (par biome) : Gouttelin évolue dans le biome Lac/Plongée.
 
-## 6. Rareté et fusion
+## 6. Progression issue de la vie en groupe (fusion de doublons)
 
-- **Fusion** **[Proposition]** : pour passer à la qualité supérieure, on cumule des exemplaires supplémentaires de la **même espèce** :
+- **[Décidé]** Pour faire passer un compagnon à la qualité supérieure, on consomme des doublons de la **même espèce** :
 
-| Passage | Exemplaires supplémentaires |
+| Passage | Exemplaires secondaires consommés |
 |---|---|
 | D vers C | 2 |
 | C vers B | 3 |
 | B vers A | 5 |
 | A vers S | 8 |
 
-## 7. Questions ouvertes (à arbitrer)
-
-1. **Visibilité de la qualité** : La qualité d'une créature sauvage doit-elle être visible dès l'apparition sauvage (actuellement affichée), ou masquée jusqu'à sa capture ?
-2. **Gain d'expérience en réserve** : Les compagnons dans l'équipe qui ne combattent pas reçoivent-ils une fraction de l'expérience ?
-3. **Modalités de fusion** : Lors d'une fusion de doublons, quel compagnon conserve son niveau/stats ?
-4. **Conditions d'évolution** : Évolution par niveau uniquement ou besoin d'objets/pierres ?
+Le compagnon conserve son niveau le plus élevé, ses bonus de stats et son trait de caractère.

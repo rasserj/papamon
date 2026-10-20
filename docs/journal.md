@@ -2,6 +2,14 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (Validation des décisions de progression & évolution)
+
+- Documentation des décisions validées dans `docs/qualite-et-progression.md` :
+  - Qualité sauvage visible dès le combat (`[D]`, `[C]`, `[B]`, `[A]`, `[S]`).
+  - Aucun gain d'expérience pour les compagnons en réserve (0 XP).
+  - Renommage et spécification de la fusion en « progression issue de la vie en groupe » (conservation du niveau/stats/trait du compagnon principal).
+  - Prise en compte de l'évolution spécifique par espèce (niveau, objet ou biome) et ajout des structures d'évolution dans `data/creatures.json`.
+
 ## 2026-10-18 (v0.2.1 - Tirage aléatoire de qualité sauvage)
 
 - Implémentation du tirage aléatoire de la qualité des créatures sauvages (D: 50%, C: 30%, B: 14%, A: 5%, S: 1%).
