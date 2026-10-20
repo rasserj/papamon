@@ -10,7 +10,12 @@
     "spd": 9,
     "top": "sprout",
     "colors": ["#4caf50", "#a5e08a"],
-    "moves": ["charge", "fouet"]
+    "moves": ["charge", "fouet"],
+    "evolution": {
+      "type": "level",
+      "level": 16,
+      "into": "mousselord"
+    }
   },
   {
     "id": "cendrille",
@@ -23,7 +28,12 @@
     "spd": 11,
     "top": "flame",
     "colors": ["#e8643c", "#ffd36b"],
-    "moves": ["charge", "etincelle"]
+    "moves": ["charge", "etincelle"],
+    "evolution": {
+      "type": "item",
+      "item": "pierre_braise",
+      "into": "cendrovar"
+    }
   },
   {
     "id": "gouttelin",
@@ -36,6 +46,11 @@
     "spd": 10,
     "top": "drop",
     "colors": ["#3f8fe0", "#9fd8ff"],
-    "moves": ["charge", "jet"]
+    "moves": ["charge", "jet"],
+    "evolution": {
+      "type": "biome",
+      "biome": "lac",
+      "into": "goutteroc"
+    }
   }
 ]

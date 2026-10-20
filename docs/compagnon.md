@@ -1,6 +1,6 @@
-# Entité « compagnon » – état v0.2.1
+# Entité « compagnon » – état v0.2.2
 
-*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.1).*
+*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.2).*
 
 ## 1. Caractéristiques actuelles
 
@@ -17,14 +17,15 @@
 | `moves` | Liste des attaques connues (identifiants) | `charge`, `fouet` |
 | `top` | Forme du sommet du sprite (`sprout`, `flame`, `drop`) | `sprout` |
 | `colors` | Deux couleurs du sprite : principale et claire | `#4caf50`, `#a5e08a` |
+| `evolution` | Règle d'évolution spécifique (niveau, objet ou biome) | `{ "type": "level", "level": 16, "into": "mousselord" }` |
 
-## 2. Les trois compagnons (v0.2.1)
+## 2. Les trois compagnons (v0.2.2)
 
-| Nom | Qualité | Type | PV | Attaque | Défense | Vitesse | Attaques |
-|---|---|---|---|---|---|---|---|
-| Mousselin | C | Sylve | 44 | 12 | 10 | 9 | Charge, Fouet-liane |
-| Cendrille | C | Braise | 40 | 14 | 8 | 11 | Charge, Étincelle |
-| Gouttelin | C | Flot | 46 | 11 | 12 | 10 | Charge, Jet d’eau |
+| Nom | Qualité | Type | PV | Attaque | Défense | Vitesse | Attaques | Évolution |
+|---|---|---|---|---|---|---|---|---|
+| Mousselin | C | Sylve | 44 | 12 | 10 | 9 | Charge, Fouet-liane | Niveau 16 |
+| Cendrille | C | Braise | 40 | 14 | 8 | 11 | Charge, Étincelle | Pierre de Braise |
+| Gouttelin | C | Flot | 46 | 11 | 12 | 10 | Charge, Jet d’eau | Biome Lac |
 
 ## 3. Exemple de fiche en JSON (`data/creatures.json`)
 
@@ -40,14 +41,19 @@
   "spd": 9,
   "top": "sprout",
   "colors": ["#4caf50", "#a5e08a"],
-  "moves": ["charge", "fouet"]
+  "moves": ["charge", "fouet"],
+  "evolution": {
+    "type": "level",
+    "level": 16,
+    "into": "mousselord"
+  }
 }
 ```
 
 ## 4. Ce qui reste à faire (v0.3 et après)
 
 - Niveaux et expérience
-- Évolution
+- Moteur d'évolution applicatif
 - Capture et inventaire d'équipe
 - Traits de caractère
 - Endurance et fatigue
