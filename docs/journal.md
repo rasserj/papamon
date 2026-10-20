@@ -2,6 +2,11 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (Incrémentation v0.2.2)
+
+- Incrémentation officielle de la version affichée : **v0.2.2**.
+- Validation et mise à jour de la documentation dans `docs/qualite-et-progression.md`, `docs/compagnon.md` et `docs/moteur-de-combat.md`.
+
 ## 2026-10-18 (Validation des décisions de progression & évolution)
 
 - Documentation des décisions validées dans `docs/qualite-et-progression.md` :

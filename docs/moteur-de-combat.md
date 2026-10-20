@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.1
+# Moteur de combat – état v0.2.2
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.1).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.2).*
 
 ## 1. Vue d’ensemble
 
@@ -9,7 +9,7 @@ Un combat peut être :
 - **Sauvage** (`isWild: true`) : déclenché par une rencontre dans les hautes herbes lors de l'exploration de la carte.
 - **Officiel / Dresseur** (`isWild: false`) : combat contre un dresseur ou une personne.
 
-Chaque combat démre avec les PV au maximum.
+Chaque combat démarre avec les PV au maximum.
 
 ## 2. Déroulement d’un combat
 
@@ -26,10 +26,10 @@ Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`)
 
 - **Abandonner** (Combats officiels contre une personne) : met immédiatement fin au combat. Le combat se conclut par une défaite.
 - **Fuire** (Combats contre une créature sauvage) :
-  - **Comparaison de vélocité** : si la créature sauvage est strictement plus rapide (`foe.spd > me.spd`), elle attaque le joueur une fois avant que la fuite ne réussisse.
+  - **Comparaison de vélocité** : si la créature sauvage est strictly plus rapide (`foe.spd > me.spd`), elle attaque le joueur une fois avant que la fuite ne réussisse.
   - Si le joueur survit à cette attaque (ou si le joueur est au moins aussi rapide), la fuite réussit immédiatement et retourne automatiquement à la carte.
 
-## 4. Formules (v0.2.1)
+## 4. Formules (v0.2.2)
 
 **Précision.** Un nombre aléatoire entre 0 et 100 est tiré. Si il dépasse la précision de l’attaque (`acc`), l’attaque rate (« Mais ça rate ! »). Une précision de 100 ne rate jamais.
 
@@ -54,7 +54,7 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 
 ## 5. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.1**.
+- Version affichée à l'écran : **v0.2.2**.
 - Badge de qualité visible dans la carte du compagnon (ex: `[C]`).
 - Barre de PV : verte au-dessus de 50 %, orange entre 20 % et 50 %, rouge en dessous.
 - Commandes : boutons tactiles à l'écran ; sur PC, touches **1** et **2** pour les attaques, **F** ou **Échap** pour Fuire/Abandonner.
