@@ -79,6 +79,7 @@ La qualité applique un multiplicateur aux stats de référence de l’espèce e
 ## 6. Progression issue de la vie en groupe (fusion de doublons)
 
 - **[Décidé]** Pour faire passer un compagnon à la qualité supérieure, on consomme des doublons de la **même espèce** et de la **même qualité** :
+- **Rareté** : voir le tableau de la partie 3.
 
 | Passage | Exemplaires secondaires consommés |
 |---|---|
@@ -86,5 +87,9 @@ La qualité applique un multiplicateur aux stats de référence de l’espèce e
 | C vers B | 3 C |
 | B vers A | 5 B |
 | A vers S | 8 A |
+
+Pour aller de D à S, il faut donc 18 doublons (sans prise en compte de la qualité dans cet exemple !en ne prenant que des qualités D, 80 créatures nécessaires), alors qu’un S sauvage n’apparaît qu’une fois sur cent : la fusion est la voie principale vers le sommet.
+
+## 7. Questions ouvertes
 
 Le compagnon principal au niveau le plus élevé conserve son niveau, ses statistiques et son trait de caractère, tandis que les créatures secondaires sont consommées.
