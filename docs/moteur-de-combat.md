@@ -26,7 +26,7 @@ Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`)
 
 - **Abandonner** (Combats officiels contre une personne) : met immédiatement fin au combat. Le combat se conclut par une défaite.
 - **Fuire** (Combats contre une créature sauvage) :
-  - **Comparaison de vélocité** : si la créature sauvage est strictly plus rapide (`foe.spd > me.spd`), elle attaque le joueur une fois avant que la fuite ne réussisse.
+  - **Comparaison de vélocité** : si la créature sauvage est strictement plus rapide (`foe.spd > me.spd`), elle attaque le joueur une fois avant que la fuite ne réussisse.
   - Si le joueur survit à cette attaque (ou si le joueur est au moins aussi rapide), la fuite réussit immédiatement et retourne automatiquement à la carte.
 
 ## 4. Formules (v0.2.2)

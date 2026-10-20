@@ -11,14 +11,14 @@
 - **[Décidé]** Chaque niveau augmente les stats de base et les stats max. Monter de niveau est **de plus en plus difficile**.
 - **[Décidé]** Les **stats max** sont un plafond qui monte lui-même avec le niveau.
 - **[Décidé]** Dans la nature, plus la qualité est haute, plus elle est **rare**.
-- **[Décidé]** **Progression issue de la vie en groupe** (fusion de doublons) : Cumuler plusieurs exemplaires du même compagnon améliore sa qualité. Le compagnon principal au **niveau le plus élevé conserve son niveau, ses statistiques et son trait de caractère**, et les doublons secondaires sont consommés pour faire grimper sa qualité.
+- **[Décidé]** **Progression issue de la vie en groupe** (fusion de doublons) : Cumuler plusieurs exemplaires du même compagnon de même qualité améliore sa qualité. Le compagnon principal au **niveau le plus élevé conserve son niveau, ses statistiques et son trait de caractère**, et les doublons secondaires sont consommés pour faire grimper sa qualité.
 - **[Décidé]** **Évolution spécifique par espèce** : L'évolution est propre à chaque espèce et peut être déclenchée par un **niveau fixe** (ex: niveau 16), un **objet spécifique** (ex: pierre élémentaire) ou des **conditions de biome** (ex: au bord de l'eau ou en montagne).
 - **[Décidé]** Le trait de caractère *intelligent* accélère la progression ; une évolution peut modifier le trait (voir `traits-de-caractere.md`).
 
 ## 2. Statistiques
 
 Liste visée : **PV, attaque, défense, endurance, vitesse** (d’autres pourront s’ajouter).
-En v0.2.1, **PV, attaque, défense et vitesse** sont entièrement implémentés dans le moteur de combat.
+En v0.2.1/v0.2.2, **PV, attaque, défense et vitesse** sont entièrement implémentés dans le moteur de combat.
 
 **Trois valeurs par statistique** **[Décidé]** :
 
@@ -37,9 +37,9 @@ En v0.2.1, **PV, attaque, défense et vitesse** sont entièrement implémentés 
 | Stat max | 150 % de la stat de base naturelle du niveau |
 | Stat min | 50 % de la stat de base |
 
-**Formule de Dégâts (Implémentée v0.2.1)** : `dégâts = max(1, Math.round(power * atk / (50 + def) * mult * (0.85 + rand * 0.15)))`.
+**Formule de Dégâts (Implémentée v0.2.1/v0.2.2)** : `dégâts = max(1, Math.round(power * atk / (50 + def) * mult * (0.85 + rand * 0.15)))`.
 
-## 3. Qualité et Probabilités d'apparition (Implémenté en v0.2.1)
+## 3. Qualité et Probabilités d'apparition (Implémenté en v0.2.1/v0.2.2)
 
 La qualité applique un multiplicateur aux stats de référence de l’espèce et fixe la probabilité de rencontrer la créature à l'état sauvage :
 
@@ -55,7 +55,7 @@ La qualité applique un multiplicateur aux stats de référence de l’espèce e
 
 **[Proposition]**
 
-- **Niveau maximum** : 50.
+- **Niveau maximum** : 100.
 - **Expérience pour passer du niveau `n` au suivant** : `10 × n²`, donc de plus en plus difficile.
 
 | Niveau actuel | Expérience nécessaire pour le suivant |
@@ -78,13 +78,13 @@ La qualité applique un multiplicateur aux stats de référence de l’espèce e
 
 ## 6. Progression issue de la vie en groupe (fusion de doublons)
 
-- **[Décidé]** Pour faire passer un compagnon à la qualité supérieure, on consomme des doublons de la **même espèce** :
+- **[Décidé]** Pour faire passer un compagnon à la qualité supérieure, on consomme des doublons de la **même espèce** et de la **même qualité** :
 
 | Passage | Exemplaires secondaires consommés |
 |---|---|
-| D vers C | 2 |
-| C vers B | 3 |
-| B vers A | 5 |
-| A vers S | 8 |
+| D vers C | 2 D |
+| C vers B | 3 C |
+| B vers A | 5 B |
+| A vers S | 8 A |
 
-Le compagnon conserve son niveau le plus élevé, ses bonus de stats et son trait de caractère.
+Le compagnon principal au niveau le plus élevé conserve son niveau, ses statistiques et son trait de caractère, tandis que les créatures secondaires sont consommées.
