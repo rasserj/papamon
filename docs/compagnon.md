@@ -1,6 +1,6 @@
-# Entité « compagnon » – état v0.2.2
+# Entité « compagnon » – état v0.2.5
 
-*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.2).*
+*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.5).*
 
 ## 1. Caractéristiques actuelles
 
@@ -9,7 +9,7 @@
 | `id` | Identifiant unique | `mousselin` |
 | `name` | Nom affiché | Mousselin |
 | `type` | Type élémentaire (`sylve`, `braise` ou `flot`), qui décide des avantages et résistances | `sylve` |
-| `quality` | Qualité visible (D, C, B, A, S) | `C` |
+| `quality` | Qualité visible (D, C, B, A, S) tirée selon `data/qualities.json` (D: 50%, C: 30%, B: 14%, A: 5%, S: 1%) | `C` |
 | `hp` | Points de vie maximum | 44 |
 | `atk` | Attaque : multiplie les dégâts infligés | 12 |
 | `def` | Défense : réduit les dégâts reçus | 10 |

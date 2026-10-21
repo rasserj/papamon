@@ -1,12 +1,12 @@
-# Moteur de combat – état v0.2.4
+# Moteur de combat – état v0.2.5
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.4).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.5).*
 
 ## 1. Vue d’ensemble
 
 Combat **1 contre 1 au tour par tour**.
 Un combat peut être :
-- **Sauvage** (`isWild: true`) : déclenché par une rencontre dans les hautes herbes lors de l'exploration de la carte.
+- **Sauvage** (`isWild: true`) : déclenché par une rencontre dans les hautes herbes lors de l'exploration de la carte. La créature sauvage possède une qualité aléatoire tirée selon `data/qualities.json`.
 - **Officiel / Dresseur** (`isWild: false`) : combat contre un dresseur ou une personne.
 
 Chaque combat démarre avec les PV au maximum.
@@ -15,10 +15,11 @@ Chaque combat démarre avec les PV au maximum.
 
 1. **Choix du compagnon** (écran de sélection) ou démarrage automatique depuis l'exploration de la carte.
 2. **Apparition** de l’adversaire (message de 1,2 s), puis les boutons d’attaque et d'action s’activent.
-3. **Tour** : le joueur peut naviguer dans le menu principal d'actions (**Attaquer**, **Créatures**, ou **Fuire/Abandonner**). Le menu **Créatures** permet d'observer la composition de l'équipe (jusqu'à 6 compagnons) et d'afficher leurs caractéristiques détaillées (stats, attaques, évolution).
+3. **Tour** : le joueur peut naviguer dans le menu principal d'actions (**Attaquer**, **Créatures**, ou **Fuire/Abandonner**).
+   - Le menu **Créatures** permet de réordonner l'équipe (boutons ▲ / ▼), d'observer les fiches détaillées et d'envoyer un compagnon en réserve au combat (action « Envoyer au combat »). Changer de créature consomme le tour du joueur, laissant l'adversaire attaquer la créature entrante.
 4. **Ordre d’action** : la créature avec la plus grande **vitesse** (`spd`) agit en premier. En cas d’égalité, tirage à pile ou face. L’ordre est fixé au début du tour.
 5. **Chaque attaque** : message « X utilise Y ! », test de précision, calcul des dégâts (intégrant la défense de la cible), mise à jour de la barre de PV, message d’efficacité éventuel.
-6. **Fin de combat** : retour automatique à la carte d'exploration au point de départ (`playerStart`, centre de la carte).
+6. **Fin de combat** : retour automatique à la carte d'exploration au même point où le combat a débuté.
 
 Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`).
 
@@ -54,8 +55,9 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 
 ## 5. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.4**.
+- Version affichée à l'écran : **v0.2.5**.
 - Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
+- Réordonnancement de l'équipe et changement de créature active pendant le combat.
 - Badge de qualité visible dans la carte du compagnon (ex: `[C]`).
 - Barre de PV : verte au-dessus de 50 %, orange entre 20 % et 50 %, rouge en dessous.
 - Commandes : boutons tactiles à l'écran ; sur PC, touches **1** et **2** pour les attaques, **F** ou **Échap** pour Fuire/Abandonner.
