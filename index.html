@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#16231b">
-<title>PapaMon v0.2.3</title>
+<title>PapaMon v0.2.4</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
     <h1>PapaMon</h1>
     <p class="sub">Choisis ton compagnon</p>
     <div id="starters"></div>
-    <p class="hint">v0.2.3 · exploration & combat</p>
+    <p class="hint">v0.2.4 · exploration & combat</p>
   </section>
 
   <!-- Exploration Map view -->
@@ -52,8 +52,14 @@
       </div>
     </div>
     <div id="msg" role="status" aria-live="polite"></div>
-    <div id="moves"></div>
-    <div id="battleActions" class="battle-actions"></div>
+    <div id="battleControls">
+      <div id="mainActions" class="actions-grid"></div>
+      <div id="movesBox" class="moves-grid" hidden></div>
+      <div id="teamBox" class="team-box" hidden></div>
+      <div id="detailBox" class="detail-box" hidden></div>
+    </div>
+    <div id="moves" style="display:none;"></div>
+    <div id="battleActions" style="display:none;"></div>
   </section>
 </main>
 

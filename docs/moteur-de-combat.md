@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.3
+# Moteur de combat – état v0.2.4
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.3).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.4).*
 
 ## 1. Vue d’ensemble
 
@@ -15,10 +15,10 @@ Chaque combat démarre avec les PV au maximum.
 
 1. **Choix du compagnon** (écran de sélection) ou démarrage automatique depuis l'exploration de la carte.
 2. **Apparition** de l’adversaire (message de 1,2 s), puis les boutons d’attaque et d'action s’activent.
-3. **Tour** : le joueur choisit une attaque, la fuite ou l'abandon.
+3. **Tour** : le joueur peut naviguer dans le menu principal d'actions (**Attaquer**, **Créatures**, ou **Fuire/Abandonner**). Le menu **Créatures** permet d'observer la composition de l'équipe (jusqu'à 6 compagnons) et d'afficher leurs caractéristiques détaillées (stats, attaques, évolution).
 4. **Ordre d’action** : la créature avec la plus grande **vitesse** (`spd`) agit en premier. En cas d’égalité, tirage à pile ou face. L’ordre est fixé au début du tour.
 5. **Chaque attaque** : message « X utilise Y ! », test de précision, calcul des dégâts (intégrant la défense de la cible), mise à jour de la barre de PV, message d’efficacité éventuel.
-6. **Fin de combat** : retour automatique à la carte d'exploration au même point où se trouvait le joueur avant le début du combat.
+6. **Fin de combat** : retour automatique à la carte d'exploration au point de départ (`playerStart`, centre de la carte).
 
 Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`).
 
@@ -29,7 +29,7 @@ Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`)
   - **Comparaison de vélocité** : si la créature sauvage est strictement plus rapide (`foe.spd > me.spd`), elle attaque le joueur une fois avant que la fuite ne réussisse.
   - Si le joueur survit à cette attaque (ou si le joueur est au moins aussi rapide), la fuite réussit immédiatement et retourne automatiquement à la carte.
 
-## 4. Formules (v0.2.3)
+## 4. Formules (v0.2.4)
 
 **Précision.** Un nombre aléatoire entre 0 et 100 est tiré. Si il dépasse la précision de l’attaque (`acc`), l’attaque rate (« Mais ça rate ! »). Une précision de 100 ne rate jamais.
 
@@ -54,7 +54,8 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 
 ## 5. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.3**.
+- Version affichée à l'écran : **v0.2.4**.
+- Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
 - Badge de qualité visible dans la carte du compagnon (ex: `[C]`).
 - Barre de PV : verte au-dessus de 50 %, orange entre 20 % et 50 %, rouge en dessous.
 - Commandes : boutons tactiles à l'écran ; sur PC, touches **1** et **2** pour les attaques, **F** ou **Échap** pour Fuire/Abandonner.

@@ -45,6 +45,7 @@ export class CombatEngine {
     this.qualities = qualities;
     this.me = null;
     this.foe = null;
+    this.playerTeam = [];
     this.busy = true;
     this.isWild = true;
     this.onBattleEnd = null;
@@ -56,16 +57,33 @@ export class CombatEngine {
     if (typeof document === 'undefined') return;
     document.addEventListener('keydown', (e) => {
       if ($('#battle').hidden) return;
-      const btns = [...document.querySelectorAll('#moves button')];
-      const i = parseInt(e.key, 10) - 1;
-      if (btns[i] && !btns[i].disabled) btns[i].click();
+      const activeContainer = $('#movesBox') && !$('#movesBox').hidden
+        ? $('#movesBox')
+        : $('#mainActions') && !$('#mainActions').hidden
+          ? $('#mainActions')
+          : null;
+
+      if (activeContainer) {
+        const btns = [...activeContainer.querySelectorAll('button')];
+        const i = parseInt(e.key, 10) - 1;
+        if (btns[i] && !btns[i].disabled) btns[i].click();
+      }
+
       if ((e.key === 'f' || e.key === 'F' || e.key === 'Escape') && !this.busy) {
-        if (this.isWild) {
-          const fleeBtn = $('#fleeBtn');
-          if (fleeBtn && !fleeBtn.disabled) fleeBtn.click();
+        if ($('#detailBox') && !$('#detailBox').hidden) {
+          this.showTeamSummary();
+        } else if ($('#movesBox') && !$('#movesBox').hidden) {
+          this.showMainActions();
+        } else if ($('#teamBox') && !$('#teamBox').hidden) {
+          this.showMainActions();
         } else {
-          const forfeitBtn = $('#forfeitBtn');
-          if (forfeitBtn && !forfeitBtn.disabled) forfeitBtn.click();
+          if (this.isWild) {
+            const fleeBtn = $('#fleeBtn');
+            if (fleeBtn && !fleeBtn.disabled) fleeBtn.click();
+          } else {
+            const forfeitBtn = $('#forfeitBtn');
+            if (forfeitBtn && !forfeitBtn.disabled) forfeitBtn.click();
+          }
         }
       }
     });
@@ -93,7 +111,220 @@ export class CombatEngine {
   }
 
   setMoveButtons(enabled) {
-    document.querySelectorAll('#moves button, #battleActions button').forEach((b) => { b.disabled = !enabled; });
+    if (typeof document === 'undefined') return;
+    document.querySelectorAll('#battleControls button, #moves button, #battleActions button').forEach((b) => { b.disabled = !enabled; });
+  }
+
+  hideSubViews() {
+    if (typeof document === 'undefined') return;
+    ['#mainActions', '#movesBox', '#teamBox', '#detailBox'].forEach((s) => {
+      const el = $(s);
+      if (el) el.hidden = true;
+    });
+  }
+
+  showMainActions() {
+    this.hideSubViews();
+    const box = $('#mainActions');
+    if (!box) return;
+    box.replaceChildren();
+
+    say(`Que doit faire ${this.me.base.name} ?`);
+
+    const attackBtn = document.createElement('button');
+    attackBtn.className = 'btn-main-attack';
+    attackBtn.id = 'mainAttackBtn';
+    attackBtn.innerHTML = 'Attaquer <small>Sélecteur d’attaques</small>';
+    attackBtn.addEventListener('click', () => this.showAttackSelector());
+    box.appendChild(attackBtn);
+
+    const teamBtn = document.createElement('button');
+    teamBtn.className = 'btn-main-team';
+    teamBtn.id = 'mainTeamBtn';
+    teamBtn.innerHTML = 'Créatures <small>Équipe & caractéristiques</small>';
+    teamBtn.addEventListener('click', () => this.showTeamSummary());
+    box.appendChild(teamBtn);
+
+    if (this.isWild) {
+      const fleeBtn = document.createElement('button');
+      fleeBtn.id = 'fleeBtn';
+      fleeBtn.className = 'btn-action btn-flee full';
+      fleeBtn.innerHTML = 'Fuire <small>Tenter d’échapper au combat</small>';
+      fleeBtn.addEventListener('click', () => this.attemptFlee());
+      box.appendChild(fleeBtn);
+    } else {
+      const forfeitBtn = document.createElement('button');
+      forfeitBtn.id = 'forfeitBtn';
+      forfeitBtn.className = 'btn-action btn-forfeit full';
+      forfeitBtn.innerHTML = 'Abandonner <small>Déclarer forfait (défaite)</small>';
+      forfeitBtn.addEventListener('click', () => this.forfeit());
+      box.appendChild(forfeitBtn);
+    }
+
+    box.hidden = false;
+    this.setMoveButtons(!this.busy);
+  }
+
+  showAttackSelector() {
+    this.hideSubViews();
+    const box = $('#movesBox');
+    if (!box) return;
+    box.replaceChildren();
+
+    say(`Choisis une attaque pour ${this.me.base.name} :`);
+
+    this.me.base.moves.forEach((id) => {
+      const m = this.moves[id];
+      if (!m) return;
+      const b = document.createElement('button');
+      const moveTypeLabel = m.type && this.types[m.type] ? this.types[m.type].label : 'Normal';
+      b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power}</small>`;
+      b.addEventListener('click', () => this.playTurn(id));
+      box.appendChild(b);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn-back full';
+    backBtn.innerHTML = '◄ Retour <small>Menu principal</small>';
+    backBtn.addEventListener('click', () => this.showMainActions());
+    box.appendChild(backBtn);
+
+    box.hidden = false;
+    this.setMoveButtons(!this.busy);
+  }
+
+  showTeamSummary() {
+    this.hideSubViews();
+    const box = $('#teamBox');
+    if (!box) return;
+    box.replaceChildren();
+
+    const count = this.playerTeam ? this.playerTeam.length : 1;
+    say(`Équipe de compagnons (${count}/6) - Choisis une créature :`);
+
+    const teamList = this.playerTeam && this.playerTeam.length > 0 ? this.playerTeam : [this.me.base];
+
+    teamList.forEach((c) => {
+      const b = document.createElement('button');
+      b.className = 'team-card-btn';
+
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'team-card-info';
+
+      const spriteSlot = document.createElement('div');
+      spriteSlot.replaceChildren(makeCreatureSprite(c));
+      infoDiv.appendChild(spriteSlot);
+
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'team-card-meta';
+      const quality = c.quality || 'C';
+      const typeLabel = this.types[c.type] ? this.types[c.type].label : c.type;
+      metaDiv.innerHTML = `<span class="title">${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · PV ${c.hp}</span>`;
+      infoDiv.appendChild(metaDiv);
+
+      b.appendChild(infoDiv);
+
+      if (c.id === this.me.base.id) {
+        const tag = document.createElement('span');
+        tag.className = 'active-tag';
+        tag.textContent = 'En combat';
+        b.appendChild(tag);
+      } else {
+        const tag = document.createElement('span');
+        tag.className = 'sub-text';
+        tag.textContent = 'Observer ►';
+        b.appendChild(tag);
+      }
+
+      b.addEventListener('click', () => this.showCreatureDetail(c));
+      box.appendChild(b);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn-back full';
+    backBtn.innerHTML = '◄ Retour <small>Menu principal</small>';
+    backBtn.addEventListener('click', () => this.showMainActions());
+    box.appendChild(backBtn);
+
+    box.hidden = false;
+    this.setMoveButtons(!this.busy);
+  }
+
+  showCreatureDetail(c) {
+    this.hideSubViews();
+    const box = $('#detailBox');
+    if (!box) return;
+    box.replaceChildren();
+
+    say(`Observation : ${c.name}`);
+
+    const header = document.createElement('div');
+    header.className = 'detail-header';
+    header.appendChild(makeCreatureSprite(c));
+
+    const headerText = document.createElement('div');
+    const quality = c.quality || 'C';
+    const typeLabel = this.types[c.type] ? this.types[c.type].label : c.type;
+    headerText.innerHTML = `<div class="detail-title">${c.name} <span class="quality-badge">[Qualité ${quality}]</span></div><div style="color:var(--muted); font-size:0.85rem;">Type ${typeLabel}</div>`;
+    header.appendChild(headerText);
+    box.appendChild(header);
+
+    const statsGrid = document.createElement('div');
+    statsGrid.className = 'stats-grid';
+    const targetDef = c.def || 10;
+    statsGrid.innerHTML = `
+      <div class="stat-item"><label>PV :</label> <strong>${c.hp}</strong></div>
+      <div class="stat-item"><label>Attaque :</label> <strong>${c.atk}</strong></div>
+      <div class="stat-item"><label>Défense :</label> <strong>${targetDef}</strong></div>
+      <div class="stat-item"><label>Vitesse :</label> <strong>${c.spd}</strong></div>
+    `;
+    box.appendChild(statsGrid);
+
+    const movesTitle = document.createElement('div');
+    movesTitle.className = 'detail-section-title';
+    movesTitle.textContent = 'Attaques connues :';
+    box.appendChild(movesTitle);
+
+    const movesList = document.createElement('div');
+    movesList.className = 'detail-moves-list';
+    if (c.moves && c.moves.length > 0) {
+      c.moves.forEach((mId) => {
+        const m = this.moves[mId];
+        if (!m) return;
+        const chip = document.createElement('div');
+        chip.className = 'detail-move-chip';
+        const mTypeLabel = m.type && this.types[m.type] ? this.types[m.type].label : 'Normal';
+        chip.innerHTML = `<span><strong>${m.name}</strong> (${mTypeLabel})</span> <span>puissance ${m.power}</span>`;
+        movesList.appendChild(chip);
+      });
+    }
+    box.appendChild(movesList);
+
+    if (c.evolution) {
+      const evoTitle = document.createElement('div');
+      evoTitle.className = 'detail-section-title';
+      evoTitle.textContent = 'Évolution :';
+      box.appendChild(evoTitle);
+
+      const evoChip = document.createElement('div');
+      evoChip.className = 'evolution-chip';
+      let evoText = '';
+      if (c.evolution.type === 'level') evoText = `Évolue au niveau ${c.evolution.level} en ${c.evolution.into}`;
+      else if (c.evolution.type === 'item') evoText = `Évolue avec l’objet "${c.evolution.item}" en ${c.evolution.into}`;
+      else if (c.evolution.type === 'biome') evoText = `Évolue dans le biome "${c.evolution.biome}" en ${c.evolution.into}`;
+      else evoText = `Conditions d'évolution définies pour ${c.evolution.into}`;
+      evoChip.textContent = evoText;
+      box.appendChild(evoChip);
+    }
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn-back full';
+    backBtn.innerHTML = '◄ Retour <small>Liste de l’équipe</small>';
+    backBtn.addEventListener('click', () => this.showTeamSummary());
+    box.appendChild(backBtn);
+
+    box.hidden = false;
+    this.setMoveButtons(!this.busy);
   }
 
   buildSelect(container, onSelect) {
@@ -114,6 +345,7 @@ export class CombatEngine {
   async startBattle(playerCreature, foeCreature = null, options = {}) {
     this.isWild = options.isWild !== undefined ? options.isWild : true;
     this.onBattleEnd = options.onEndCallback || null;
+    this.playerTeam = options.playerTeam || [playerCreature];
     this.me = this.fighter(playerCreature);
 
     const rawFoe = foeCreature || pick(this.creatures);
@@ -136,44 +368,12 @@ export class CombatEngine {
     });
     this.updateBars();
 
-    const movesBox = $('#moves');
-    movesBox.replaceChildren();
-    this.me.base.moves.forEach((id) => {
-      const m = this.moves[id];
-      if (!m) return;
-      const b = document.createElement('button');
-      const moveTypeLabel = m.type && this.types[m.type] ? this.types[m.type].label : 'Normal';
-      b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power}</small>`;
-      b.addEventListener('click', () => this.playTurn(id));
-      movesBox.appendChild(b);
-    });
-
-    const actionsBox = $('#battleActions');
-    actionsBox.replaceChildren();
-    if (this.isWild) {
-      const fleeBtn = document.createElement('button');
-      fleeBtn.id = 'fleeBtn';
-      fleeBtn.className = 'btn-action btn-flee';
-      fleeBtn.innerHTML = 'Fuire <small>Tenter d’échapper au combat</small>';
-      fleeBtn.addEventListener('click', () => this.attemptFlee());
-      actionsBox.appendChild(fleeBtn);
-    } else {
-      const forfeitBtn = document.createElement('button');
-      forfeitBtn.id = 'forfeitBtn';
-      forfeitBtn.className = 'btn-action btn-forfeit';
-      forfeitBtn.innerHTML = 'Abandonner <small>Déclarer forfait (défaite)</small>';
-      forfeitBtn.addEventListener('click', () => this.forfeit());
-      actionsBox.appendChild(forfeitBtn);
-    }
-
-    this.setMoveButtons(false);
-
     this.busy = true;
     say(this.isWild ? `${this.foe.base.name} (Qualité ${this.foe.base.quality}) sauvage apparaît !` : `Un dresseur envoie ${this.foe.base.name} !`);
     await wait(1200);
-    say(`Que doit faire ${this.me.base.name} ?`);
-    this.setMoveButtons(true);
+
     this.busy = false;
+    this.showMainActions();
   }
 
   async forfeit() {
@@ -252,9 +452,8 @@ export class CombatEngine {
       if (d.hp <= 0) { await this.endBattle(a === this.me, d); return; }
     }
 
-    say(`Que doit faire ${this.me.base.name} ?`);
-    this.setMoveButtons(true);
     this.busy = false;
+    this.showMainActions();
   }
 
   async endBattle(playerWon, loser) {
@@ -265,6 +464,7 @@ export class CombatEngine {
   }
 
   async finishBattle(playerWon, reason) {
+    this.hideSubViews();
     const box = $('#moves');
     box.replaceChildren();
     $('#battleActions').replaceChildren();
