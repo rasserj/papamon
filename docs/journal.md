@@ -2,6 +2,15 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (v0.2.4 - Menu d'action en combat & Observation de l'équipe et des caractéristiques)
+
+- Incrémentation officielle de la version affichée : **v0.2.4**.
+- Implémentation du menu principal d'actions en combat avec 3 options : **Attaquer** (sélecteur d'attaques), **Créatures** (sélecteur d'équipe et observation) et **Fuire / Abandonner**.
+- Affichage du résumé de l'équipe de compagnons (jusqu'à 6 créatures) avec statut en combat.
+- Ajout de la vue d'observation détaillée des caractéristiques d'une créature choisie (PV, attaque, défense, vitesse, liste des attaques connues et détails d'évolution).
+- Intégration de boutons de navigation « Retour » dans toutes les sous-vues.
+- Mise à jour de `index.html`, `css/style.css`, `js/combat.js`, `js/main.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/journal.md`).
+
 ## 2026-10-18 (v0.2.3 - Fréquence des qualités & Position sur carte après combat)
 
 - Incrémentation officielle de la version affichée : **v0.2.3**.

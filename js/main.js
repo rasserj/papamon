@@ -4,6 +4,7 @@ import { CombatEngine } from './combat.js';
 let combatEngine = null;
 let mapEngine = null;
 let selectedCreature = null;
+let playerTeam = [];
 
 async function init() {
   const [types, moves, creatures, qualities] = await Promise.all([
@@ -18,6 +19,9 @@ async function init() {
   const startersBox = document.querySelector('#starters');
   combatEngine.buildSelect(startersBox, (creature) => {
     selectedCreature = creature;
+    // Build player team starting with selected starter plus up to 5 other team members
+    const teamOthers = creatures.filter((c) => c.id !== creature.id);
+    playerTeam = [selectedCreature, ...teamOthers].slice(0, 6);
     startMapExploration();
   });
 
@@ -40,6 +44,7 @@ async function startMapExploration() {
 function triggerWildEncounter() {
   combatEngine.startBattle(selectedCreature, null, {
     isWild: true,
+    playerTeam: playerTeam,
     onEndCallback: (playerWon, reason) => {
       startMapExploration();
     }
