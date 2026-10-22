@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.7
+# Moteur de combat – état v0.2.8
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.7).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.8).*
 
 ## 1. Vue d’ensemble
 
@@ -56,7 +56,7 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 - `puissance` : celle de l’attaque ; `attaque` : stat `atk` de l’attaquant ; `défense_cible` : stat `def` du défenseur.
 - `aléa` : nombre aléatoire entre 0 et 1, donc un facteur entre 0,85 et 1,00.
 
-## 5. Endurance, effort et fatigue (v0.2.7)
+## 5. Endurance, effort et fatigue (v0.2.8)
 
 - **Statistique d'effort** (`effort` / `maxEffort`) : chaque créature dispose d'une réserve d'endurance. La valeur maximale (`maxEffort`) varie avec la qualité de la créature (multiplicateur de qualité).
 - **Coût des attaques** (`cost`) : défini dans `data/moves.json` (ex: Charge = 10, Fouet-liane / Étincelle / Jet d'eau = 15).
@@ -71,7 +71,7 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 
 ## 6. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.7**.
+- Version affichée à l'écran : **v0.2.8**.
 - Affichage dynamique de l'effort dans la carte de combat (`PV X/Y · Effort A/B`) lorsque l'option est activée.
 - Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
 - Onglet **Options** dans le menu du jeu pour paramétrer la visibilité du mécanisme d'effort/endurance (visible par défaut).

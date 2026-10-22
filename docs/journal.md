@@ -2,9 +2,9 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
-## 2026-10-18 (v0.2.7 - Gestion de l'Endurance, Effort & Action Reprendre son souffle)
+## 2026-10-18 (v0.2.8 - Gestion de l'Endurance, Effort & Action Reprendre son souffle)
 
-- Incrémentation officielle de la version affichée : **v0.2.7**.
+- Incrémentation officielle de la version affichée : **v0.2.8**.
 - Ajout du coût en effort (`cost`) pour chaque attaque dans `data/moves.json`.
 - Prise en compte de la qualité pour l'effort maximal (`maxEffort`).
 - Consommation dynamique de l'effort lors du lancement des attaques en combat et mise à jour de l'affichage de l'effort dans la carte de combat (`PV X/Y · Effort A/B`).
