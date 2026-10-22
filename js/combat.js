@@ -207,10 +207,16 @@ export class CombatEngine {
       box.appendChild(b);
     });
 
+    const restGain = 35;
+    const canRestFull = (this.me.maxEffort - this.me.effort) >= restGain;
     const restBtn = document.createElement('button');
     restBtn.className = 'btn-main-team full';
-    restBtn.innerHTML = 'Se reposer <small>Récupérer de l’effort (+35)</small>';
-    restBtn.addEventListener('click', () => this.playRestTurn());
+    restBtn.innerHTML = `Reprendre son souffle <small>Récupérer +${restGain} d’effort${canRestFull ? '' : ' - Effet non intégral'}</small>`;
+    if (!canRestFull) {
+      restBtn.disabled = true;
+    } else {
+      restBtn.addEventListener('click', () => this.playRestTurn());
+    }
     box.appendChild(restBtn);
 
     const backBtn = document.createElement('button');
@@ -597,9 +603,20 @@ export class CombatEngine {
       a.effort = Math.min(a.maxEffort, a.effort + gain);
       a.base.effort = a.effort;
       this.updateBars();
-      say(`${a.base.name} se repose et récupère de l’effort (+${gain}) !`);
+      say(`${a.base.name} reprend son souffle et récupère +${gain} d'effort !`);
       await wait(1100);
     }
+  }
+
+  recoverReserveEffort() {
+    if (!this.playerTeam) return;
+    this.playerTeam.forEach((c) => {
+      if (c !== this.me.base && c.hp > 0) {
+        const maxEffort = c.maxEffort || 100;
+        const currentEffort = c.effort !== undefined ? c.effort : maxEffort;
+        c.effort = Math.min(maxEffort, currentEffort + 10);
+      }
+    });
   }
 
   async playTurn(moveId) {
@@ -627,6 +644,7 @@ export class CombatEngine {
       }
     }
 
+    this.recoverReserveEffort();
     this.busy = false;
     this.showMainActions();
   }
@@ -656,6 +674,7 @@ export class CombatEngine {
       }
     }
 
+    this.recoverReserveEffort();
     this.busy = false;
     this.showMainActions();
   }

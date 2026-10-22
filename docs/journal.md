@@ -2,17 +2,19 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
-## 2026-10-18 (v0.2.7 - Gestion de l'Endurance, Effort & Action Se Reposer)
+## 2026-10-18 (v0.2.7 - Gestion de l'Endurance, Effort & Action Reprendre son souffle)
 
 - Incrémentation officielle de la version affichée : **v0.2.7**.
 - Ajout du coût en effort (`cost`) pour chaque attaque dans `data/moves.json`.
 - Prise en compte de la qualité pour l'effort maximal (`maxEffort`).
 - Consommation dynamique de l'effort lors du lancement des attaques en combat et mise à jour de l'affichage de l'effort dans la carte de combat (`PV X/Y · Effort A/B`).
 - Désactivation automatique des attaques dans le sélecteur si l'effort disponible est insuffisant (« - Insuffisant »).
-- Ajout de l'action **Se reposer** (+35 effort) permettant de régénérer l'endurance au combat.
-- Adaptation de l'IA adverse pour consommer de l'effort et se reposer en cas d'épuisement.
+- Ajout de l'action **Reprendre son souffle** (+35 effort), accessible uniquement sous condition de bénéfice intégral (`maxEffort - effort >= 35`).
+- Récupération passive d'effort en combat pour les créatures vivantes en réserve (+10 effort par tour).
+- Récupération passive d'effort lors des déplacements sur la carte (+1 effort par pas).
+- Adaptation de l'IA adverse pour consommer de l'effort et reprendre son souffle en cas d'épuisement.
 - Réinitialisation de l'effort de l'équipe lors d'un K.O. collectif.
-- Mise à jour de `index.html`, `data/moves.json`, `js/combat.js`, `js/main.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).
+- Mise à jour de `index.html`, `data/moves.json`, `js/combat.js`, `js/map.js`, `js/main.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).
 
 ## 2026-10-18 (v0.2.6 - Persistance des PV & Onglet Options du menu)
 

@@ -36,13 +36,26 @@ async function init() {
   });
 
   const canvas = document.querySelector('#mapCanvas');
-  mapEngine = new MapEngine(canvas, () => {
-    triggerWildEncounter();
-  });
+  mapEngine = new MapEngine(
+    canvas,
+    () => { triggerWildEncounter(); },
+    () => { recoverTeamStepEffort(); }
+  );
 
   mapEngine.bindTouchControls(document.querySelector('.controls'));
 
   setupMapMenu();
+}
+
+function recoverTeamStepEffort() {
+  if (!playerTeam) return;
+  playerTeam.forEach((c) => {
+    if (c.hp > 0) {
+      const maxEffort = c.maxEffort || 100;
+      const currentEffort = c.effort !== undefined ? c.effort : maxEffort;
+      c.effort = Math.min(maxEffort, currentEffort + 1);
+    }
+  });
 }
 
 function setupMapMenu() {
