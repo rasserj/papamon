@@ -351,7 +351,10 @@ function resumeMapExploration() {
   if (menuBox) menuBox.hidden = true;
 
   if (playerTeam && playerTeam.length > 0 && playerTeam.every((c) => c.hp <= 0)) {
-    playerTeam.forEach((c) => { c.hp = c.maxHp || c.hp; });
+    playerTeam.forEach((c) => {
+      c.hp = c.maxHp || c.hp;
+      c.effort = c.maxEffort || 100;
+    });
   }
 
   if (mapEngine) {

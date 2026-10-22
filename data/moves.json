@@ -1,6 +1,6 @@
 {
-  "charge": { "name": "Charge", "type": null, "power": 35, "acc": 100 },
-  "fouet": { "name": "Fouet-liane", "type": "sylve", "power": 50, "acc": 90 },
-  "etincelle": { "name": "Étincelle", "type": "braise", "power": 50, "acc": 90 },
-  "jet": { "name": "Jet d’eau", "type": "flot", "power": 50, "acc": 90 }
+  "charge": { "name": "Charge", "type": null, "power": 35, "acc": 100, "cost": 10 },
+  "fouet": { "name": "Fouet-liane", "type": "sylve", "power": 50, "acc": 90, "cost": 15 },
+  "etincelle": { "name": "Étincelle", "type": "braise", "power": 50, "acc": 90, "cost": 15 },
+  "jet": { "name": "Jet d’eau", "type": "flot", "power": 50, "acc": 90, "cost": 15 }
 }
