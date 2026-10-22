@@ -1,6 +1,6 @@
-# Entité « compagnon » – état v0.2.5
+# Entité « compagnon » – état v0.2.6
 
-*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.5).*
+*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.6).*
 
 ## 1. Caractéristiques actuelles
 
@@ -14,6 +14,7 @@
 | `atk` | Attaque : multiplie les dégâts infligés | 12 |
 | `def` | Défense : réduit les dégâts reçus | 10 |
 | `spd` | Vitesse : décide de l’ordre d’action et des chances de fuite | 9 |
+| `effort` | Endurance / Effort (100/100) : mesure l'effort du compagnon | 100 |
 | `moves` | Liste des attaques connues (identifiants) | `charge`, `fouet` |
 | `top` | Forme du sommet du sprite (`sprout`, `flame`, `drop`) | `sprout` |
 | `colors` | Deux couleurs du sprite : principale et claire | `#4caf50`, `#a5e08a` |

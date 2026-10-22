@@ -7,6 +7,7 @@ let mapEngine = null;
 let selectedCreature = null;
 let playerTeam = [];
 let gameData = { types: {}, moves: {}, creatures: [], qualities: [] };
+let gameSettings = { showEffort: true };
 
 async function init() {
   const [types, moves, creatures, qualities] = await Promise.all([
@@ -18,13 +19,19 @@ async function init() {
 
   gameData = { types, moves, creatures, qualities };
 
-  combatEngine = new CombatEngine(types, moves, creatures, qualities);
+  combatEngine = new CombatEngine(types, moves, creatures, qualities, gameSettings);
 
   const startersBox = document.querySelector('#starters');
   combatEngine.buildSelect(startersBox, (creature) => {
     selectedCreature = creature;
     const teamOthers = creatures.filter((c) => c.id !== creature.id);
     playerTeam = [selectedCreature, ...teamOthers].slice(0, 6);
+    playerTeam.forEach((c) => {
+      c.maxHp = c.maxHp || c.hp;
+      c.hp = c.hp;
+      c.effort = c.effort !== undefined ? c.effort : 100;
+      c.maxEffort = c.maxEffort || 100;
+    });
     startMapExploration();
   });
 
@@ -59,7 +66,7 @@ function toggleMapMenu() {
 }
 
 function hideMapMenuSubViews() {
-  ['#mapMenuMain', '#mapTeamBox', '#mapDetailBox'].forEach((s) => {
+  ['#mapMenuMain', '#mapTeamBox', '#mapDetailBox', '#mapOptionsBox'].forEach((s) => {
     const el = document.querySelector(s);
     if (el) el.hidden = true;
   });
@@ -78,12 +85,20 @@ function showMapMenuMain() {
   box.appendChild(title);
 
   const teamBtn = document.createElement('button');
-    teamBtn.id = 'mapTeamBtn';
+  teamBtn.id = 'mapTeamBtn';
   teamBtn.className = 'btn-main-team full';
   teamBtn.style.marginBottom = '8px';
   teamBtn.innerHTML = `Équipe de compagnons (${playerTeam.length}/6) <small>Voir et réordonner l'équipe</small>`;
   teamBtn.addEventListener('click', () => showMapTeamSummary());
   box.appendChild(teamBtn);
+
+  const optionsBtn = document.createElement('button');
+  optionsBtn.id = 'mapOptionsBtn';
+  optionsBtn.className = 'btn-main-team full';
+  optionsBtn.style.marginBottom = '8px';
+  optionsBtn.innerHTML = `Options du jeu <small>Préférences & affichage</small>`;
+  optionsBtn.addEventListener('click', () => showMapOptions());
+  box.appendChild(optionsBtn);
 
   const closeBtn = document.createElement('button');
     closeBtn.id = 'mapCloseBtn';
@@ -93,6 +108,57 @@ function showMapMenuMain() {
     document.querySelector('#mapMenuBox').hidden = true;
   });
   box.appendChild(closeBtn);
+
+  box.hidden = false;
+}
+
+function showMapOptions() {
+  hideMapMenuSubViews();
+  const box = document.querySelector('#mapOptionsBox');
+  if (!box) return;
+  box.replaceChildren();
+
+  const title = document.createElement('h2');
+  title.style.margin = '0 0 10px 0';
+  title.style.textAlign = 'center';
+  title.textContent = 'Options du jeu';
+  box.appendChild(title);
+
+  const optRow = document.createElement('div');
+  optRow.style.display = 'flex';
+  optRow.style.justifyContent = 'space-between';
+  optRow.style.alignItems = 'center';
+  optRow.style.padding = '10px';
+  optRow.style.background = 'var(--panel-bg)';
+  optRow.style.borderRadius = '8px';
+  optRow.style.marginBottom = '12px';
+
+  const labelDiv = document.createElement('div');
+  labelDiv.innerHTML = `<strong>Effort / Endurance</strong><div style="font-size:0.8rem; color:var(--muted);">Afficher l'endurance des compagnons</div>`;
+  optRow.appendChild(labelDiv);
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.id = 'toggleEffortBtn';
+  toggleBtn.className = 'btn-reorder';
+  toggleBtn.style.padding = '6px 12px';
+  toggleBtn.style.fontWeight = 'bold';
+  toggleBtn.style.fontSize = '0.85rem';
+  toggleBtn.textContent = gameSettings.showEffort ? 'Visible (ON)' : 'Masqué (OFF)';
+  toggleBtn.addEventListener('click', () => {
+    gameSettings.showEffort = !gameSettings.showEffort;
+    if (combatEngine) combatEngine.settings = gameSettings;
+    showMapOptions();
+  });
+  optRow.appendChild(toggleBtn);
+
+  box.appendChild(optRow);
+
+  const backBtn = document.createElement('button');
+  backBtn.id = 'mapOptionsBackBtn';
+  backBtn.className = 'btn-back full';
+  backBtn.innerHTML = '◄ Retour <small>Menu principal du jeu</small>';
+  backBtn.addEventListener('click', () => showMapMenuMain());
+  box.appendChild(backBtn);
 
   box.hidden = false;
 }
@@ -139,7 +205,9 @@ function showMapTeamSummary() {
     metaDiv.className = 'team-card-meta';
     const quality = c.quality || 'C';
     const typeLabel = gameData.types[c.type] ? gameData.types[c.type].label : c.type;
-    metaDiv.innerHTML = `<span class="title">${idx === 0 ? '★ ' : ''}${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · PV ${c.hp}</span>`;
+    const maxHp = c.maxHp || c.hp;
+    const hpStatus = c.hp <= 0 ? `<span style="color:#e5594f; font-weight:bold;">K.O. (0/${maxHp})</span>` : `PV ${c.hp}/${maxHp}`;
+    metaDiv.innerHTML = `<span class="title">${idx === 0 ? '★ ' : ''}${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · ${hpStatus}</span>`;
     infoDiv.appendChild(metaDiv);
 
     card.appendChild(infoDiv);
@@ -208,11 +276,14 @@ function showMapCreatureDetail(c) {
   const statsGrid = document.createElement('div');
   statsGrid.className = 'stats-grid';
   const targetDef = c.def || 10;
+  const maxHp = c.maxHp || c.hp;
+  const effortHtml = gameSettings.showEffort ? `<div class="stat-item"><label>Endurance :</label> <strong>${c.effort !== undefined ? c.effort : 100}/${c.maxEffort || 100}</strong></div>` : '';
   statsGrid.innerHTML = `
-    <div class="stat-item"><label>PV :</label> <strong>${c.hp}</strong></div>
+    <div class="stat-item"><label>PV :</label> <strong>${c.hp}/${maxHp}</strong></div>
     <div class="stat-item"><label>Attaque :</label> <strong>${c.atk}</strong></div>
     <div class="stat-item"><label>Défense :</label> <strong>${targetDef}</strong></div>
     <div class="stat-item"><label>Vitesse :</label> <strong>${c.spd}</strong></div>
+    ${effortHtml}
   `;
   box.appendChild(statsGrid);
 
@@ -278,6 +349,10 @@ function resumeMapExploration() {
   document.querySelector('#map').hidden = false;
   const menuBox = document.querySelector('#mapMenuBox');
   if (menuBox) menuBox.hidden = true;
+
+  if (playerTeam && playerTeam.length > 0 && playerTeam.every((c) => c.hp <= 0)) {
+    playerTeam.forEach((c) => { c.hp = c.maxHp || c.hp; });
+  }
 
   if (mapEngine) {
     mapEngine.draw();
