@@ -606,6 +606,14 @@ export class CombatEngine {
     else if (mult < 1) { say('Ce n’est pas très efficace…'); await wait(900); }
   }
 
+  getActionPriority(action) {
+    if (!action) return 0;
+    if (action.type === 'attack' && action.move && action.move.category === 'dodge') {
+      return 1;
+    }
+    return 0;
+  }
+
   getFoeAction() {
     const affordableFoeMoves = this.foe.base.moves.filter((id) => {
       const m = this.moves[id];
@@ -614,6 +622,11 @@ export class CombatEngine {
       return cost <= this.foe.effort;
     });
     if (affordableFoeMoves.length > 0) {
+      const dodgeId = affordableFoeMoves.find((id) => this.moves[id]?.category === 'dodge');
+      const foeLowHp = (this.foe.hp / (this.foe.base.maxHp || this.foe.maxHp || this.foe.hp)) <= 0.35;
+      if (dodgeId && foeLowHp && Math.random() < 0.50) {
+        return { type: 'attack', move: this.moves[dodgeId] };
+      }
       return { type: 'attack', move: this.moves[pick(affordableFoeMoves)] };
     }
     return { type: 'rest' };
@@ -682,7 +695,25 @@ export class CombatEngine {
     const pAction = { type: 'attack', move: this.moves[moveId] };
     const fAction = this.getFoeAction();
 
-    const playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    if (pAction.move && pAction.move.category === 'dodge') {
+      this.me.isDodging = true;
+    }
+    if (fAction.move && fAction.move.category === 'dodge') {
+      this.foe.isDodging = true;
+    }
+
+    const pPriority = this.getActionPriority(pAction);
+    const fPriority = this.getActionPriority(fAction);
+
+    let playerFirst = false;
+    if (pPriority > fPriority) {
+      playerFirst = true;
+    } else if (fPriority > pPriority) {
+      playerFirst = false;
+    } else {
+      playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    }
+
     const order = playerFirst
       ? [[this.me, this.foe, pAction, 'foe'], [this.foe, this.me, fAction, 'me']]
       : [[this.foe, this.me, fAction, 'me'], [this.me, this.foe, pAction, 'foe']];
@@ -690,6 +721,8 @@ export class CombatEngine {
     for (const [a, d, act, slot] of order) {
       await this.executeAction(a, d, act, slot);
       if (d.hp <= 0) {
+        this.me.isDodging = false;
+        this.foe.isDodging = false;
         if (d === this.me) {
           await this.handlePlayerKO();
         } else {
@@ -699,6 +732,8 @@ export class CombatEngine {
       }
     }
 
+    this.me.isDodging = false;
+    this.foe.isDodging = false;
     this.recoverReserveEffort();
     this.busy = false;
     this.showMainActions();
@@ -715,7 +750,22 @@ export class CombatEngine {
     const pAction = { type: 'rest' };
     const fAction = this.getFoeAction();
 
-    const playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    if (fAction.move && fAction.move.category === 'dodge') {
+      this.foe.isDodging = true;
+    }
+
+    const pPriority = this.getActionPriority(pAction);
+    const fPriority = this.getActionPriority(fAction);
+
+    let playerFirst = false;
+    if (pPriority > fPriority) {
+      playerFirst = true;
+    } else if (fPriority > pPriority) {
+      playerFirst = false;
+    } else {
+      playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    }
+
     const order = playerFirst
       ? [[this.me, this.foe, pAction, 'foe'], [this.foe, this.me, fAction, 'me']]
       : [[this.foe, this.me, fAction, 'me'], [this.me, this.foe, pAction, 'foe']];
@@ -723,6 +773,8 @@ export class CombatEngine {
     for (const [a, d, act, slot] of order) {
       await this.executeAction(a, d, act, slot);
       if (d.hp <= 0) {
+        this.me.isDodging = false;
+        this.foe.isDodging = false;
         if (d === this.me) {
           await this.handlePlayerKO();
         } else {
@@ -732,6 +784,8 @@ export class CombatEngine {
       }
     }
 
+    this.me.isDodging = false;
+    this.foe.isDodging = false;
     this.recoverReserveEffort();
     this.busy = false;
     this.showMainActions();

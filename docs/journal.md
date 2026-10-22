@@ -2,6 +2,13 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (v0.3.0 - Priorité d'Esquive & Pré-déclaration de Posture)
+
+- Incrémentation officielle de la version affichée : **v0.3.0**.
+- Attribution d'une priorité d'action (+1) pour l'attaque **Esquive** et pré-déclaration de la posture d'esquive dès le début du tour, garantissant la protection systématique contre les attaques adverses même si l'adversaire est plus rapide.
+- Intégration tactique de l'attaque Esquive dans l'IA adverse lorsque sa réserve d'effort le permet et en situation critique (PV <= 35%).
+- Mise à jour de `index.html`, `js/combat.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).
+
 ## 2026-10-18 (v0.2.9 - Move Esquive, Coût Consécutif & Correction Reset Hors Combat)
 
 - Incrémentation officielle de la version affichée : **v0.2.9**.
