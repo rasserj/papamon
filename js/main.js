@@ -368,7 +368,7 @@ function resumeMapExploration() {
           c.effort = maxEffort;
         } else {
           const cap = Math.round(maxEffort * 0.5);
-          c.effort = cap;
+          c.effort = Math.max(c.effort !== undefined ? c.effort : cap, cap);
         }
       });
     }

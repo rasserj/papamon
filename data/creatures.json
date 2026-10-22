@@ -10,7 +10,7 @@
     "spd": 9,
     "top": "sprout",
     "colors": ["#4caf50", "#a5e08a"],
-    "moves": ["charge", "fouet"],
+    "moves": ["charge", "fouet", "esquive"],
     "evolution": {
       "type": "level",
       "level": 16,
@@ -28,7 +28,7 @@
     "spd": 11,
     "top": "flame",
     "colors": ["#e8643c", "#ffd36b"],
-    "moves": ["charge", "etincelle"],
+    "moves": ["charge", "etincelle", "esquive"],
     "evolution": {
       "type": "item",
       "item": "pierre_braise",
@@ -46,7 +46,7 @@
     "spd": 10,
     "top": "drop",
     "colors": ["#3f8fe0", "#9fd8ff"],
-    "moves": ["charge", "jet"],
+    "moves": ["charge", "jet", "esquive"],
     "evolution": {
       "type": "biome",
       "biome": "lac",

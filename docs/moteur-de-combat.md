@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.8
+# Moteur de combat – état v0.2.9
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.8).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.9).*
 
 ## 1. Vue d’ensemble
 
@@ -56,7 +56,7 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 - `puissance` : celle de l’attaque ; `attaque` : stat `atk` de l’attaquant ; `défense_cible` : stat `def` du défenseur.
 - `aléa` : nombre aléatoire entre 0 et 1, donc un facteur entre 0,85 et 1,00.
 
-## 5. Endurance, effort et fatigue (v0.2.8)
+## 5. Endurance, effort et fatigue (v0.2.9)
 
 - **Statistique d'effort** (`effort` / `maxEffort`) : chaque créature dispose d'une réserve d'endurance. La valeur maximale (`maxEffort`) varie avec la qualité de la créature (multiplicateur de qualité).
 - **Coût des attaques** (`cost`) : défini dans `data/moves.json` (ex: Charge = 10, Fouet-liane / Étincelle / Jet d'eau = 15).
@@ -65,13 +65,17 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 - **Récupération passive en réserve (en combat)** : à chaque tour de combat écoulé, les compagnons de l'équipe restant en réserve et non K.O. récupèrent **+10 points d'effort** par tour.
 - **Récupération hors combat (à la sortie de combat)** :
   - Si le compagnon n'est pas dans le rouge (`PV > 20 % maxPV`) : réinitialisation complète et gratuite (`effort = maxEffort`).
-  - Si le compagnon est dans le rouge (`PV <= 20 % maxPV`) : réinitialisation plafonnée à 50 % de l'effort max (`effort = min(effort, 50 % maxEffort)`).
+  - Si le compagnon est dans le rouge (`PV <= 20 % maxPV`) : régénération jusqu'à 50 % de l'effort max si son effort était plus bas, sans jamais baisser l'effort courant s'il était déjà supérieur (`effort = max(effort, 50 % maxEffort)`).
+- **Move « Esquive » et surcoût consécutif** :
+  - L'attaque Esquive permet d'esquiver toutes les attaques adverses durant le tour.
+  - Son coût de base est de **10 points d'effort**, avec un surcoût de **+5 effort par utilisation consécutive** (`10 + 5 * n`).
+  - L'utilisation de toute autre action (autre attaque, repos, changement) réinitialise le compteur d'esquives consécutives à 0.
 - **IA adverse** : l'adversaire gère également son effort. S'il n'a pas suffisamment d'effort pour utiliser une attaque disponible, il reprend son souffle automatiquement.
 - **Réinitialisation** : l'effort est réinitialisé au maximum lors d'un soin complet de l'équipe (K.O. collectif).
 
 ## 6. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.8**.
+- Version affichée à l'écran : **v0.2.9**.
 - Affichage dynamique de l'effort dans la carte de combat (`PV X/Y · Effort A/B`) lorsque l'option est activée.
 - Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
 - Onglet **Options** dans le menu du jeu pour paramétrer la visibilité du mécanisme d'effort/endurance (visible par défaut).

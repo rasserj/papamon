@@ -106,13 +106,24 @@ export class CombatEngine {
     if (!base.maxHp) base.maxHp = base.hp;
     if (base.maxEffort === undefined) base.maxEffort = 100;
     if (base.effort === undefined) base.effort = base.maxEffort;
+    if (base.consecutiveDodgeCount === undefined) base.consecutiveDodgeCount = 0;
     return {
       base,
       hp: base.hp,
       maxHp: base.maxHp,
       effort: base.effort,
       maxEffort: base.maxEffort,
+      consecutiveDodgeCount: base.consecutiveDodgeCount,
+      isDodging: false,
     };
+  }
+
+  getMoveCost(fighterInstance, move) {
+    if (!move) return 10;
+    if (move.category === 'dodge' || move.id === 'esquive') {
+      return (move.cost || 10) + 5 * (fighterInstance.consecutiveDodgeCount || 0);
+    }
+    return move.cost || 10;
   }
 
   updateBars() {
@@ -200,11 +211,14 @@ export class CombatEngine {
     this.me.base.moves.forEach((id) => {
       const m = this.moves[id];
       if (!m) return;
-      const cost = m.cost || 10;
+      const cost = this.getMoveCost(this.me, m);
       const b = document.createElement('button');
       const moveTypeLabel = m.type && this.types[m.type] ? this.types[m.type].label : 'Normal';
       const canAfford = this.me.effort >= cost;
-      b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power} (${cost} effort)${canAfford ? '' : ' - Insuffisant'}</small>`;
+      const subInfo = m.category === 'dodge'
+        ? `Esquive · (${cost} effort)`
+        : `${moveTypeLabel} · puissance ${m.power} (${cost} effort)`;
+      b.innerHTML = `${m.name}<small>${subInfo}${canAfford ? '' : ' - Insuffisant'}</small>`;
       if (!canAfford) {
         b.dataset.unavailable = 'true';
         b.disabled = true;
@@ -565,6 +579,13 @@ export class CombatEngine {
   async attack(att, def, move, defSlot) {
     say(`${att.base.name} utilise ${move.name} !`);
     await wait(800);
+
+    if (def.isDodging) {
+      say(`${def.base.name} esquive l’attaque de ${att.base.name} !`);
+      await wait(1000);
+      return;
+    }
+
     if (Math.random() * 100 > move.acc) {
       say('Mais ça rate !');
       await wait(900);
@@ -586,7 +607,12 @@ export class CombatEngine {
   }
 
   getFoeAction() {
-    const affordableFoeMoves = this.foe.base.moves.filter((id) => (this.moves[id]?.cost || 10) <= this.foe.effort);
+    const affordableFoeMoves = this.foe.base.moves.filter((id) => {
+      const m = this.moves[id];
+      if (!m) return false;
+      const cost = this.getMoveCost(this.foe, m);
+      return cost <= this.foe.effort;
+    });
     if (affordableFoeMoves.length > 0) {
       return { type: 'attack', move: this.moves[pick(affordableFoeMoves)] };
     }
@@ -601,12 +627,30 @@ export class CombatEngine {
   async executeAction(a, d, action, slot) {
     if (a.hp <= 0) return;
     if (action.type === 'attack') {
-      const cost = action.move.cost || 10;
-      a.effort = Math.max(0, a.effort - cost);
-      a.base.effort = a.effort;
-      this.updateBars();
-      await this.attack(a, d, action.move, slot);
+      if (action.move.category === 'dodge') {
+        const cost = this.getMoveCost(a, action.move);
+        a.effort = Math.max(0, a.effort - cost);
+        a.base.effort = a.effort;
+        a.isDodging = true;
+        a.consecutiveDodgeCount = (a.consecutiveDodgeCount || 0) + 1;
+        a.base.consecutiveDodgeCount = a.consecutiveDodgeCount;
+        this.updateBars();
+        say(`${a.base.name} se prépare à esquiver la prochaine attaque !`);
+        await wait(1000);
+      } else {
+        a.isDodging = false;
+        a.consecutiveDodgeCount = 0;
+        a.base.consecutiveDodgeCount = 0;
+        const cost = this.getMoveCost(a, action.move);
+        a.effort = Math.max(0, a.effort - cost);
+        a.base.effort = a.effort;
+        this.updateBars();
+        await this.attack(a, d, action.move, slot);
+      }
     } else if (action.type === 'rest') {
+      a.isDodging = false;
+      a.consecutiveDodgeCount = 0;
+      a.base.consecutiveDodgeCount = 0;
       const gain = 35;
       a.effort = Math.min(a.maxEffort, a.effort + gain);
       a.base.effort = a.effort;
@@ -631,6 +675,9 @@ export class CombatEngine {
     if (this.busy) return;
     this.busy = true;
     this.setMoveButtons(false);
+
+    this.me.isDodging = false;
+    this.foe.isDodging = false;
 
     const pAction = { type: 'attack', move: this.moves[moveId] };
     const fAction = this.getFoeAction();
@@ -661,6 +708,9 @@ export class CombatEngine {
     if (this.busy) return;
     this.busy = true;
     this.setMoveButtons(false);
+
+    this.me.isDodging = false;
+    this.foe.isDodging = false;
 
     const pAction = { type: 'rest' };
     const fAction = this.getFoeAction();
