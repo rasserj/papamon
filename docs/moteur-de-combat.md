@@ -63,7 +63,9 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 - **Fatigue** : lorsqu'une créature a un niveau d'effort inférieur au coût d'un move, ce move est désactivé (« - Insuffisant »).
 - **Action « Reprendre son souffle »** : disponible dans le sélecteur d'actions en combat, consomme un tour et régénère **+35 points d'effort**. Elle n'est autorisée que si son bénéfice est intégral (`maxEffort - effort >= 35`).
 - **Récupération passive en réserve (en combat)** : à chaque tour de combat écoulé, les compagnons de l'équipe restant en réserve et non K.O. récupèrent **+10 points d'effort** par tour.
-- **Récupération hors combat (sur la carte)** : à chaque pas effectué sur la carte d'exploration, tous les compagnons vivants de l'équipe régénèrent **+1 point d'effort** par pas.
+- **Récupération hors combat (à la sortie de combat)** :
+  - Si le compagnon n'est pas dans le rouge (`PV > 20 % maxPV`) : réinitialisation complète et gratuite (`effort = maxEffort`).
+  - Si le compagnon est dans le rouge (`PV <= 20 % maxPV`) : réinitialisation plafonnée à 50 % de l'effort max (`effort = min(effort, 50 % maxEffort)`).
 - **IA adverse** : l'adversaire gère également son effort. S'il n'a pas suffisamment d'effort pour utiliser une attaque disponible, il reprend son souffle automatiquement.
 - **Réinitialisation** : l'effort est réinitialisé au maximum lors d'un soin complet de l'équipe (K.O. collectif).
 

@@ -130,7 +130,13 @@ export class CombatEngine {
 
   setMoveButtons(enabled) {
     if (typeof document === 'undefined') return;
-    document.querySelectorAll('#battleControls button, #moves button, #battleActions button').forEach((b) => { b.disabled = !enabled; });
+    document.querySelectorAll('#battleControls button, #moves button, #battleActions button').forEach((b) => {
+      if (!enabled) {
+        b.disabled = true;
+      } else {
+        b.disabled = b.dataset.unavailable === 'true';
+      }
+    });
   }
 
   hideSubViews() {
@@ -200,6 +206,7 @@ export class CombatEngine {
       const canAfford = this.me.effort >= cost;
       b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power} (${cost} effort)${canAfford ? '' : ' - Insuffisant'}</small>`;
       if (!canAfford) {
+        b.dataset.unavailable = 'true';
         b.disabled = true;
       } else {
         b.addEventListener('click', () => this.playTurn(id));
@@ -213,6 +220,7 @@ export class CombatEngine {
     restBtn.className = 'btn-main-team full';
     restBtn.innerHTML = `Reprendre son souffle <small>Récupérer +${restGain} d’effort${canRestFull ? '' : ' - Effet non intégral'}</small>`;
     if (!canRestFull) {
+      restBtn.dataset.unavailable = 'true';
       restBtn.disabled = true;
     } else {
       restBtn.addEventListener('click', () => this.playRestTurn());
@@ -609,7 +617,7 @@ export class CombatEngine {
   }
 
   recoverReserveEffort() {
-    if (!this.playerTeam) return;
+    if (!this.playerTeam || !this.me || !this.me.base) return;
     this.playerTeam.forEach((c) => {
       if (c !== this.me.base && c.hp > 0) {
         const maxEffort = c.maxEffort || 100;

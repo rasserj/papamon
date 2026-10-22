@@ -11,7 +11,7 @@ Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne 
 - Désactivation automatique des attaques dans le sélecteur si l'effort disponible est insuffisant (« - Insuffisant »).
 - Ajout de l'action **Reprendre son souffle** (+35 effort), accessible uniquement sous condition de bénéfice intégral (`maxEffort - effort >= 35`).
 - Récupération passive d'effort en combat pour les créatures vivantes en réserve (+10 effort par tour).
-- Récupération passive d'effort lors des déplacements sur la carte (+1 effort par pas).
+- Récupération d'endurance hors combat lors du retour à la carte : réinitialisation complète et gratuite pour les compagnons qui ne sont pas dans le rouge (`PV > 20% maxPV`), et réinitialisation plafonnée à 50% maxEffort pour ceux qui sont dans le rouge (`PV <= 20% maxPV`).
 - Adaptation de l'IA adverse pour consommer de l'effort et reprendre son souffle en cas d'épuisement.
 - Réinitialisation de l'effort de l'équipe lors d'un K.O. collectif.
 - Mise à jour de `index.html`, `data/moves.json`, `js/combat.js`, `js/map.js`, `js/main.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).

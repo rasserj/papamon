@@ -36,27 +36,15 @@ async function init() {
   });
 
   const canvas = document.querySelector('#mapCanvas');
-  mapEngine = new MapEngine(
-    canvas,
-    () => { triggerWildEncounter(); },
-    () => { recoverTeamStepEffort(); }
-  );
+  mapEngine = new MapEngine(canvas, () => {
+    triggerWildEncounter();
+  });
 
   mapEngine.bindTouchControls(document.querySelector('.controls'));
 
   setupMapMenu();
 }
 
-function recoverTeamStepEffort() {
-  if (!playerTeam) return;
-  playerTeam.forEach((c) => {
-    if (c.hp > 0) {
-      const maxEffort = c.maxEffort || 100;
-      const currentEffort = c.effort !== undefined ? c.effort : maxEffort;
-      c.effort = Math.min(maxEffort, currentEffort + 1);
-    }
-  });
-}
 
 function setupMapMenu() {
   const startBtn = document.querySelector('#startMenuBtn');
@@ -363,15 +351,32 @@ function resumeMapExploration() {
   const menuBox = document.querySelector('#mapMenuBox');
   if (menuBox) menuBox.hidden = true;
 
-  if (playerTeam && playerTeam.length > 0 && playerTeam.every((c) => c.hp <= 0)) {
-    playerTeam.forEach((c) => {
-      c.hp = c.maxHp || c.hp;
-      c.effort = c.maxEffort || 100;
-    });
+  if (playerTeam && playerTeam.length > 0) {
+    const totalKO = playerTeam.every((c) => c.hp <= 0);
+    if (totalKO) {
+      playerTeam.forEach((c) => {
+        c.hp = c.maxHp || c.hp;
+        c.effort = c.maxEffort || 100;
+      });
+    } else {
+      playerTeam.forEach((c) => {
+        if (c.hp <= 0) return;
+        const maxHp = c.maxHp || c.hp;
+        const maxEffort = c.maxEffort || 100;
+        const isRedHp = (c.hp / maxHp) <= 0.20;
+        if (!isRedHp) {
+          c.effort = maxEffort;
+        } else {
+          const cap = Math.round(maxEffort * 0.5);
+          c.effort = cap;
+        }
+      });
+    }
   }
 
   if (mapEngine) {
-    mapEngine.draw();
+    if (typeof mapEngine.draw === 'function') mapEngine.draw();
+    else if (typeof mapEngine.render === 'function') mapEngine.render();
   }
 }
 

@@ -1,11 +1,10 @@
 import { renderMapTile, renderHeroTile } from './sprites.js';
 
 export class MapEngine {
-  constructor(canvas, onEncounter, onStep = null) {
+  constructor(canvas, onEncounter) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.onEncounter = onEncounter;
-    this.onStep = onStep;
     this.mapData = null;
     this.player = { x: 0, y: 0 };
     this.tileSize = 32; // Screen display size per tile
@@ -101,11 +100,6 @@ export class MapEngine {
 
     this.player.x = targetX;
     this.player.y = targetY;
-
-    if (this.onStep) {
-      this.onStep();
-    }
-
     this.render();
 
     // Random encounter check in wild tall grass (20% chance)
