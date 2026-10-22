@@ -89,6 +89,8 @@ export class MapEngine {
 
   movePlayer(dx, dy) {
     if (this.isMoving || !this.mapData) return;
+    const menuBox = document.querySelector('#mapMenuBox');
+    if (menuBox && !menuBox.hidden) return;
 
     const targetX = this.player.x + dx;
     const targetY = this.player.y + dy;

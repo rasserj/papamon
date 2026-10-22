@@ -108,6 +108,67 @@ button small {
 }
 
 /* Map screen */
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.map-header h1 {
+  margin: 0;
+}
+
+.btn-start {
+  background: #2b4f35;
+  color: #ffd36b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 2px solid #43734e;
+  border-radius: 8px;
+  padding: 6px 12px;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.btn-start:active {
+  background: #3a6947;
+}
+
+.map-menu-box {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  background: rgba(18, 30, 22, 0.96);
+  border: 2px solid #3c6347;
+  border-radius: 12px;
+  padding: 12px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.reorder-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.btn-reorder {
+  min-height: 28px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  background: #2b4533;
+  border: 1px solid #3d6347;
+}
+.btn-reorder:active {
+  background: #3d6148;
+}
+
 .map-container {
   flex: 1;
   min-height: 0;

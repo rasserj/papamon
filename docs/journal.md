@@ -2,6 +2,15 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (v0.2.5 - Menu du jeu sur carte, Réordonnancement d'équipe & Changement de compagnon en combat)
+
+- Incrémentation officielle de la version affichée : **v0.2.5**.
+- Correction et activation effective des fréquences d'apparition des qualités (D: 50%, C: 30%, B: 14%, A: 5%, S: 1%) via `data/qualities.json`.
+- Maintien exact de la position du joueur sur la carte lors du retour de combat (à l'endroit où le combat a débuté).
+- Ajout d'un bouton « START / MENU » sur la carte permettant d'ouvrir le menu du jeu, d'examiner et de réordonner les compagnons de l'équipe (boutons ▲ / ▼).
+- Ajout de la possibilité de réordonner l'équipe et de changer la créature active pendant un combat via l'action « Envoyer X au combat » (coûte un tour d'action).
+- Mise à jour de `index.html`, `css/style.css`, `js/combat.js`, `js/main.js`, `js/map.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).
+
 ## 2026-10-18 (v0.2.4 - Menu d'action en combat & Observation de l'équipe et des caractéristiques)
 
 - Incrémentation officielle de la version affichée : **v0.2.4**.

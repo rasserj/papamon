@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#16231b">
-<title>PapaMon v0.2.4</title>
+<title>PapaMon v0.2.5</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,15 +14,23 @@
     <h1>PapaMon</h1>
     <p class="sub">Choisis ton compagnon</p>
     <div id="starters"></div>
-    <p class="hint">v0.2.4 · exploration & combat</p>
+    <p class="hint">v0.2.5 · exploration & combat</p>
   </section>
 
   <!-- Exploration Map view -->
   <section id="map" hidden>
-    <h1>Campagne</h1>
+    <div class="map-header">
+      <h1>Campagne</h1>
+      <button type="button" id="startMenuBtn" class="btn-start">START / MENU</button>
+    </div>
     <p class="sub">Déplace-toi avec les flèches ou le pavé tactile</p>
     <div class="map-container">
       <canvas id="mapCanvas"></canvas>
+      <div id="mapMenuBox" class="map-menu-box" hidden>
+        <div id="mapMenuMain" class="map-menu-content"></div>
+        <div id="mapTeamBox" class="team-box" hidden></div>
+        <div id="mapDetailBox" class="detail-box" hidden></div>
+      </div>
     </div>
     <div class="controls">
       <div class="dpad-row">

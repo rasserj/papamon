@@ -193,6 +193,19 @@ export class CombatEngine {
     this.setMoveButtons(!this.busy);
   }
 
+  reorderTeam(index, direction) {
+    if (direction === 'up' && index > 0) {
+      const temp = this.playerTeam[index];
+      this.playerTeam[index] = this.playerTeam[index - 1];
+      this.playerTeam[index - 1] = temp;
+    } else if (direction === 'down' && index < this.playerTeam.length - 1) {
+      const temp = this.playerTeam[index];
+      this.playerTeam[index] = this.playerTeam[index + 1];
+      this.playerTeam[index + 1] = temp;
+    }
+    this.showTeamSummary();
+  }
+
   showTeamSummary() {
     this.hideSubViews();
     const box = $('#teamBox');
@@ -204,9 +217,10 @@ export class CombatEngine {
 
     const teamList = this.playerTeam && this.playerTeam.length > 0 ? this.playerTeam : [this.me.base];
 
-    teamList.forEach((c) => {
-      const b = document.createElement('button');
-      b.className = 'team-card-btn';
+    teamList.forEach((c, idx) => {
+      const card = document.createElement('div');
+      card.className = 'team-card-btn';
+      card.style.cursor = 'pointer';
 
       const infoDiv = document.createElement('div');
       infoDiv.className = 'team-card-info';
@@ -222,22 +236,58 @@ export class CombatEngine {
       metaDiv.innerHTML = `<span class="title">${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · PV ${c.hp}</span>`;
       infoDiv.appendChild(metaDiv);
 
-      b.appendChild(infoDiv);
+      card.appendChild(infoDiv);
+
+      const rightDiv = document.createElement('div');
+      rightDiv.style.display = 'flex';
+      rightDiv.style.alignItems = 'center';
+      rightDiv.style.gap = '8px';
 
       if (c.id === this.me.base.id) {
         const tag = document.createElement('span');
         tag.className = 'active-tag';
         tag.textContent = 'En combat';
-        b.appendChild(tag);
+        rightDiv.appendChild(tag);
       } else {
         const tag = document.createElement('span');
         tag.className = 'sub-text';
         tag.textContent = 'Observer ►';
-        b.appendChild(tag);
+        rightDiv.appendChild(tag);
       }
 
-      b.addEventListener('click', () => this.showCreatureDetail(c));
-      box.appendChild(b);
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'reorder-btns';
+      actionsDiv.addEventListener('click', (e) => e.stopPropagation());
+
+      if (idx > 0) {
+        const upBtn = document.createElement('button');
+        upBtn.className = 'btn-reorder';
+        upBtn.textContent = '▲';
+        upBtn.ariaLabel = 'Monter';
+        upBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.reorderTeam(idx, 'up');
+        });
+        actionsDiv.appendChild(upBtn);
+      }
+
+      if (idx < this.playerTeam.length - 1) {
+        const downBtn = document.createElement('button');
+        downBtn.className = 'btn-reorder';
+        downBtn.textContent = '▼';
+        downBtn.ariaLabel = 'Descendre';
+        downBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.reorderTeam(idx, 'down');
+        });
+        actionsDiv.appendChild(downBtn);
+      }
+
+      rightDiv.appendChild(actionsDiv);
+      card.appendChild(rightDiv);
+
+      card.addEventListener('click', () => this.showCreatureDetail(c));
+      box.appendChild(card);
     });
 
     const backBtn = document.createElement('button');
@@ -317,6 +367,15 @@ export class CombatEngine {
       box.appendChild(evoChip);
     }
 
+    if (c.id !== this.me.base.id && c.hp > 0) {
+      const switchBtn = document.createElement('button');
+      switchBtn.className = 'btn-main-attack full';
+      switchBtn.style.marginTop = '8px';
+      switchBtn.innerHTML = `Envoyer ${c.name} au combat <small>Remplacer la créature active (coûte un tour)</small>`;
+      switchBtn.addEventListener('click', () => this.switchCreature(c));
+      box.appendChild(switchBtn);
+    }
+
     const backBtn = document.createElement('button');
     backBtn.className = 'btn-back full';
     backBtn.innerHTML = '◄ Retour <small>Liste de l’équipe</small>';
@@ -325,6 +384,42 @@ export class CombatEngine {
 
     box.hidden = false;
     this.setMoveButtons(!this.busy);
+  }
+
+  async switchCreature(newBaseCreature) {
+    if (this.busy) return;
+    this.busy = true;
+    this.hideSubViews();
+    this.setMoveButtons(false);
+
+    const oldName = this.me.base.name;
+    say(`${oldName} revient ! En avant, ${newBaseCreature.name} !`);
+
+    this.me = this.fighter(newBaseCreature);
+
+    $('#meName').textContent = this.me.base.name;
+    const quality = this.me.base.quality || 'C';
+    const qBadge = $('#meQuality');
+    if (qBadge) qBadge.textContent = ` [${quality}]`;
+    const typeLabel = this.types[this.me.base.type] ? this.types[this.me.base.type].label : this.me.base.type;
+    $('#meType').textContent = typeLabel;
+    const slot = $('#meSprite');
+    slot.replaceChildren(makeCreatureSprite(this.me.base));
+    this.updateBars();
+
+    await wait(1200);
+
+    // Foe turn: foe attacks incoming creature
+    const fMove = this.moves[pick(this.foe.base.moves)];
+    await this.attack(this.foe, this.me, fMove, 'me');
+
+    if (this.me.hp <= 0) {
+      await this.endBattle(false, this.me);
+      return;
+    }
+
+    this.busy = false;
+    this.showMainActions();
   }
 
   buildSelect(container, onSelect) {
