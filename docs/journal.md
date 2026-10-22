@@ -2,9 +2,13 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
-## 2026-10-18 (v0.2.8 - Gestion de l'Endurance, Effort & Action Reprendre son souffle)
+## 2026-10-18 (v0.2.9 - Move Esquive, Coût Consécutif & Correction Reset Hors Combat)
 
-- Incrémentation officielle de la version affichée : **v0.2.8**.
+- Incrémentation officielle de la version affichée : **v0.2.9**.
+- Ajout de l'attaque **Esquive** (`category: "dodge"`) dans `data/moves.json` et dans les moves connus des créatures dans `data/creatures.json`.
+- Implémentation du surcoût consécutif de l'esquive : coût de base de 10 effort, +5 effort à chaque esquive consécutive (`10 + 5 * n`). Réinitialisation du compteur lors de l'utilisation d'une autre action.
+- Protection effective lors du tour d'utilisation d'esquive (l'attaque adverse est esquivée et n'inflige pas de dégâts).
+- Correction du reset d'endurance hors combat : l'endurance courante ne diminue JAMAIS lors de la sortie de combat (pour les PV dans le rouge `<= 20%`, régénération jusqu'à 50% maxEffort si l'effort était plus bas).
 - Ajout du coût en effort (`cost`) pour chaque attaque dans `data/moves.json`.
 - Prise en compte de la qualité pour l'effort maximal (`maxEffort`).
 - Consommation dynamique de l'effort lors du lancement des attaques en combat et mise à jour de l'affichage de l'effort dans la carte de combat (`PV X/Y · Effort A/B`).
