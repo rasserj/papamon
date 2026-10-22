@@ -27,22 +27,27 @@ export function rollWildQuality(qualitiesList = null) {
 export function applyQualityToCreature(baseCreature, qualityInfo = null, qualitiesList = null) {
   const q = qualityInfo || rollWildQuality(qualitiesList);
   const mult = q.mult;
+  const hpVal = Math.max(10, Math.round(baseCreature.hp * mult));
   return {
     ...baseCreature,
     quality: q.quality,
-    hp: Math.max(10, Math.round(baseCreature.hp * mult)),
+    maxHp: hpVal,
+    hp: hpVal,
     atk: Math.max(1, Math.round(baseCreature.atk * mult)),
     def: Math.max(1, Math.round((baseCreature.def || 10) * mult)),
     spd: Math.max(1, Math.round(baseCreature.spd * mult)),
+    effort: 100,
+    maxEffort: 100,
   };
 }
 
 export class CombatEngine {
-  constructor(types, moves, creatures, qualities = null) {
+  constructor(types, moves, creatures, qualities = null, settings = null) {
     this.types = types;
     this.moves = moves;
     this.creatures = creatures;
     this.qualities = qualities;
+    this.settings = settings || { showEffort: true };
     this.me = null;
     this.foe = null;
     this.playerTeam = [];
@@ -97,16 +102,26 @@ export class CombatEngine {
   }
 
   fighter(base) {
-    return { base, hp: base.hp };
+    if (!base.maxHp) base.maxHp = base.hp;
+    if (base.effort === undefined) base.effort = 100;
+    if (!base.maxEffort) base.maxEffort = 100;
+    return {
+      base,
+      hp: base.hp,
+      maxHp: base.maxHp,
+      effort: base.effort,
+      maxEffort: base.maxEffort,
+    };
   }
 
   updateBars() {
     [['me', this.me], ['foe', this.foe]].forEach(([id, f]) => {
-      const pct = Math.round((f.hp / f.base.hp) * 100);
+      const maxHp = f.base.maxHp || f.maxHp || f.base.hp;
+      const pct = Math.round((f.hp / maxHp) * 100);
       const bar = $('#' + id + 'Bar');
-      bar.style.width = pct + '%';
+      bar.style.width = Math.max(0, pct) + '%';
       bar.style.background = pct > 50 ? '#6fcf7f' : pct > 20 ? '#f0b84a' : '#e5594f';
-      $('#' + id + 'Hp').textContent = `PV ${f.hp}/${f.base.hp}`;
+      $('#' + id + 'Hp').textContent = `PV ${f.hp}/${maxHp}`;
     });
   }
 
@@ -233,7 +248,9 @@ export class CombatEngine {
       metaDiv.className = 'team-card-meta';
       const quality = c.quality || 'C';
       const typeLabel = this.types[c.type] ? this.types[c.type].label : c.type;
-      metaDiv.innerHTML = `<span class="title">${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · PV ${c.hp}</span>`;
+      const maxHp = c.maxHp || c.hp;
+      const hpStatus = c.hp <= 0 ? `<span style="color:#e5594f; font-weight:bold;">K.O. (0/${maxHp})</span>` : `PV ${c.hp}/${maxHp}`;
+      metaDiv.innerHTML = `<span class="title">${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · ${hpStatus}</span>`;
       infoDiv.appendChild(metaDiv);
 
       card.appendChild(infoDiv);
@@ -322,11 +339,16 @@ export class CombatEngine {
     const statsGrid = document.createElement('div');
     statsGrid.className = 'stats-grid';
     const targetDef = c.def || 10;
+    const maxHp = c.maxHp || c.hp;
+    const effortHtml = (this.settings && this.settings.showEffort)
+      ? `<div class="stat-item"><label>Endurance :</label> <strong>${c.effort !== undefined ? c.effort : 100}/${c.maxEffort || 100}</strong></div>`
+      : '';
     statsGrid.innerHTML = `
-      <div class="stat-item"><label>PV :</label> <strong>${c.hp}</strong></div>
+      <div class="stat-item"><label>PV :</label> <strong>${c.hp}/${maxHp}</strong></div>
       <div class="stat-item"><label>Attaque :</label> <strong>${c.atk}</strong></div>
       <div class="stat-item"><label>Défense :</label> <strong>${targetDef}</strong></div>
       <div class="stat-item"><label>Vitesse :</label> <strong>${c.spd}</strong></div>
+      ${effortHtml}
     `;
     box.appendChild(statsGrid);
 
@@ -414,7 +436,7 @@ export class CombatEngine {
     await this.attack(this.foe, this.me, fMove, 'me');
 
     if (this.me.hp <= 0) {
-      await this.endBattle(false, this.me);
+      await this.handlePlayerKO();
       return;
     }
 
@@ -441,7 +463,13 @@ export class CombatEngine {
     this.isWild = options.isWild !== undefined ? options.isWild : true;
     this.onBattleEnd = options.onEndCallback || null;
     this.playerTeam = options.playerTeam || [playerCreature];
-    this.me = this.fighter(playerCreature);
+
+    let lead = playerCreature;
+    if (lead.hp <= 0) {
+      const alive = this.playerTeam.find((c) => c.hp > 0);
+      if (alive) lead = alive;
+    }
+    this.me = this.fighter(lead);
 
     const rawFoe = foeCreature || pick(this.creatures);
     const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe, null, this.qualities) : rawFoe;
@@ -497,7 +525,7 @@ export class CombatEngine {
       await this.attack(this.foe, this.me, fMove, 'me');
 
       if (this.me.hp <= 0) {
-        await this.endBattle(false, this.me);
+        await this.handlePlayerKO();
         return;
       }
     }
@@ -522,6 +550,7 @@ export class CombatEngine {
     const sprite = $('#' + defSlot + 'Sprite');
     sprite.classList.add('hit');
     def.hp = Math.max(0, def.hp - dmg);
+    def.base.hp = def.hp; // Persist HP damage on base companion
     this.updateBars();
     await wait(700);
     sprite.classList.remove('hit');
@@ -544,16 +573,39 @@ export class CombatEngine {
 
     for (const [a, d, m, slot] of order) {
       await this.attack(a, d, m, slot);
-      if (d.hp <= 0) { await this.endBattle(a === this.me, d); return; }
+      if (d.hp <= 0) {
+        if (d === this.me) {
+          await this.handlePlayerKO();
+        } else {
+          await this.endBattle(true, d);
+        }
+        return;
+      }
     }
 
     this.busy = false;
     this.showMainActions();
   }
 
-  async endBattle(playerWon, loser) {
-    say(`${loser.base.name} est K.O. !`);
+  async handlePlayerKO() {
+    say(`${this.me.base.name} est K.O. !`);
     await wait(1100);
+    const hasAlive = this.playerTeam.some((c) => c.hp > 0);
+    if (hasAlive) {
+      say(`Choisis un autre compagnon pour poursuivre le combat !`);
+      await wait(1000);
+      this.busy = false;
+      this.showTeamSummary();
+    } else {
+      await this.endBattle(false, this.me);
+    }
+  }
+
+  async endBattle(playerWon, loser) {
+    if (loser === this.foe) {
+      say(`${loser.base.name} est K.O. !`);
+      await wait(1100);
+    }
     say(playerWon ? 'Victoire ! Bravo !' : 'Défaite… ce sera pour la prochaine fois.');
     await this.finishBattle(playerWon, 'KO');
   }

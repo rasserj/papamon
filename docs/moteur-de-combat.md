@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.5
+# Moteur de combat – état v0.2.6
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.5).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.6).*
 
 ## 1. Vue d’ensemble
 
@@ -19,7 +19,7 @@ Chaque combat démarre avec les PV au maximum.
    - Le menu **Créatures** permet de réordonner l'équipe (boutons ▲ / ▼), d'observer les fiches détaillées et d'envoyer un compagnon en réserve au combat (action « Envoyer au combat »). Changer de créature consomme le tour du joueur, laissant l'adversaire attaquer la créature entrante.
 4. **Ordre d’action** : la créature avec la plus grande **vitesse** (`spd`) agit en premier. En cas d’égalité, tirage à pile ou face. L’ordre est fixé au début du tour.
 5. **Chaque attaque** : message « X utilise Y ! », test de précision, calcul des dégâts (intégrant la défense de la cible), mise à jour de la barre de PV, message d’efficacité éventuel.
-6. **Fin de combat** : retour automatique à la carte d'exploration au même point où le combat a débuté.
+6. **Fin de combat** : retour automatique à la carte d'exploration au même point où le combat a débuté. Les PV restants de chaque compagnon de l'équipe sont conservés. En cas de K.O. de l'équipe entière, les compagnons sont soignés.
 
 Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`).
 
@@ -55,8 +55,9 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 
 ## 5. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.5**.
+- Version affichée à l'écran : **v0.2.6**.
 - Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
+- Onglet **Options** dans le menu du jeu pour paramétrer la visibilité du mécanisme d'effort/endurance (visible par défaut).
 - Réordonnancement de l'équipe et changement de créature active pendant le combat.
 - Badge de qualité visible dans la carte du compagnon (ex: `[C]`).
 - Barre de PV : verte au-dessus de 50 %, orange entre 20 % et 50 %, rouge en dessous.

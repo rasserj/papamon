@@ -2,6 +2,15 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-18 (v0.2.6 - Persistance des PV & Onglet Options du menu)
+
+- Incrémentation officielle de la version affichée : **v0.2.6**.
+- Implémentation de la persistance des PV des compagnons de l'équipe : les dégâts subis en combat sont conservés lors du changement de créature et après la fin des combats.
+- Soin automatique de l'équipe en cas de défaite totale (K.O. collectif).
+- Ajout de l'onglet **Options** dans le menu du jeu sur la carte, permettant d'activer/désactiver la visibilité du mécanisme d'effort/endurance (activé par défaut).
+- Affichage de la jauge d'endurance dans la fiche détaillée des compagnons lorsque l'option est activée.
+- Mise à jour de `index.html`, `js/combat.js`, `js/main.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).
+
 ## 2026-10-18 (v0.2.5 - Menu du jeu sur carte, Réordonnancement d'équipe & Changement de compagnon en combat)
 
 - Incrémentation officielle de la version affichée : **v0.2.5**.
