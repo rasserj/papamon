@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.6
+# Moteur de combat – état v0.2.7
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.6).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.7).*
 
 ## 1. Vue d’ensemble
 
@@ -18,7 +18,10 @@ Chaque combat démarre avec les PV au maximum.
 3. **Tour** : le joueur peut naviguer dans le menu principal d'actions (**Attaquer**, **Créatures**, ou **Fuire/Abandonner**).
    - Le menu **Créatures** permet de réordonner l'équipe (boutons ▲ / ▼), d'observer les fiches détaillées et d'envoyer un compagnon en réserve au combat (action « Envoyer au combat »). Changer de créature consomme le tour du joueur, laissant l'adversaire attaquer la créature entrante.
 4. **Ordre d’action** : la créature avec la plus grande **vitesse** (`spd`) agit en premier. En cas d’égalité, tirage à pile ou face. L’ordre est fixé au début du tour.
-5. **Chaque attaque** : message « X utilise Y ! », test de précision, calcul des dégâts (intégrant la défense de la cible), mise à jour de la barre de PV, message d’efficacité éventuel.
+5. **Chaque attaque / action** :
+   - L'utilisation d'une attaque consomme de l'effort selon le coût (`cost`) spécifié pour le move.
+   - Si l'effort est insuffisant pour lancer une attaque, celle-ci est indisponible. Le compagnon peut choisir l'action **Se reposer** pour regagner +35 effort.
+   - Pour chaque attaque : message « X utilise Y ! », test de précision, calcul des dégâts (intégrant la défense de la cible), mise à jour de la barre de PV/Effort, message d’efficacité éventuel.
 6. **Fin de combat** : retour automatique à la carte d'exploration au même point où le combat a débuté. Les PV restants de chaque compagnon de l'équipe sont conservés. En cas de K.O. de l'équipe entière, les compagnons sont soignés.
 
 Pendant l’animation d’un tour, les boutons sont désactivés (verrou `busy`).
@@ -53,9 +56,19 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 - `puissance` : celle de l’attaque ; `attaque` : stat `atk` de l’attaquant ; `défense_cible` : stat `def` du défenseur.
 - `aléa` : nombre aléatoire entre 0 et 1, donc un facteur entre 0,85 et 1,00.
 
-## 5. Interface et affichage
+## 5. Endurance, effort et fatigue (v0.2.7)
 
-- Version affichée à l'écran : **v0.2.6**.
+- **Statistique d'effort** (`effort` / `maxEffort`) : chaque créature dispose d'une réserve d'endurance. La valeur maximale (`maxEffort`) varie avec la qualité de la créature (multiplicateur de qualité).
+- **Coût des attaques** (`cost`) : défini dans `data/moves.json` (ex: Charge = 10, Fouet-liane / Étincelle / Jet d'eau = 15).
+- **Fatigue** : lorsqu'une créature a un niveau d'effort inférieur au coût d'un move, ce move est désactivé (« - Insuffisant »).
+- **Action « Se reposer »** : disponible dans le sélecteur d'actions en combat, consomme un tour et régénère **+35 points d'effort** (dans la limite de `maxEffort`).
+- **IA adverse** : l'adversaire gère également son effort. S'il n'a pas suffisamment d'effort pour utiliser une attaque disponible, il se repose automatiquement.
+- **Réinitialisation** : l'effort est réinitialisé au maximum lors d'un soin complet de l'équipe (K.O. collectif).
+
+## 6. Interface et affichage
+
+- Version affichée à l'écran : **v0.2.7**.
+- Affichage dynamique de l'effort dans la carte de combat (`PV X/Y · Effort A/B`) lorsque l'option est activée.
 - Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
 - Onglet **Options** dans le menu du jeu pour paramétrer la visibilité du mécanisme d'effort/endurance (visible par défaut).
 - Réordonnancement de l'équipe et changement de créature active pendant le combat.

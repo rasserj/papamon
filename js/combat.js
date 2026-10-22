@@ -28,6 +28,7 @@ export function applyQualityToCreature(baseCreature, qualityInfo = null, qualiti
   const q = qualityInfo || rollWildQuality(qualitiesList);
   const mult = q.mult;
   const hpVal = Math.max(10, Math.round(baseCreature.hp * mult));
+  const maxEffortVal = Math.max(50, Math.round((baseCreature.maxEffort || 100) * mult));
   return {
     ...baseCreature,
     quality: q.quality,
@@ -36,8 +37,8 @@ export function applyQualityToCreature(baseCreature, qualityInfo = null, qualiti
     atk: Math.max(1, Math.round(baseCreature.atk * mult)),
     def: Math.max(1, Math.round((baseCreature.def || 10) * mult)),
     spd: Math.max(1, Math.round(baseCreature.spd * mult)),
-    effort: 100,
-    maxEffort: 100,
+    effort: maxEffortVal,
+    maxEffort: maxEffortVal,
   };
 }
 
@@ -103,8 +104,8 @@ export class CombatEngine {
 
   fighter(base) {
     if (!base.maxHp) base.maxHp = base.hp;
-    if (base.effort === undefined) base.effort = 100;
-    if (!base.maxEffort) base.maxEffort = 100;
+    if (base.maxEffort === undefined) base.maxEffort = 100;
+    if (base.effort === undefined) base.effort = base.maxEffort;
     return {
       base,
       hp: base.hp,
@@ -117,11 +118,13 @@ export class CombatEngine {
   updateBars() {
     [['me', this.me], ['foe', this.foe]].forEach(([id, f]) => {
       const maxHp = f.base.maxHp || f.maxHp || f.base.hp;
+      const maxEffort = f.base.maxEffort || f.maxEffort || 100;
       const pct = Math.round((f.hp / maxHp) * 100);
       const bar = $('#' + id + 'Bar');
       bar.style.width = Math.max(0, pct) + '%';
       bar.style.background = pct > 50 ? '#6fcf7f' : pct > 20 ? '#f0b84a' : '#e5594f';
-      $('#' + id + 'Hp').textContent = `PV ${f.hp}/${maxHp}`;
+      const showEffortText = (this.settings && this.settings.showEffort) ? ` · Effort ${f.effort}/${maxEffort}` : '';
+      $('#' + id + 'Hp').textContent = `PV ${f.hp}/${maxHp}${showEffortText}`;
     });
   }
 
@@ -186,17 +189,29 @@ export class CombatEngine {
     if (!box) return;
     box.replaceChildren();
 
-    say(`Choisis une attaque pour ${this.me.base.name} :`);
+    say(`Choisis une action pour ${this.me.base.name} :`);
 
     this.me.base.moves.forEach((id) => {
       const m = this.moves[id];
       if (!m) return;
+      const cost = m.cost || 10;
       const b = document.createElement('button');
       const moveTypeLabel = m.type && this.types[m.type] ? this.types[m.type].label : 'Normal';
-      b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power}</small>`;
-      b.addEventListener('click', () => this.playTurn(id));
+      const canAfford = this.me.effort >= cost;
+      b.innerHTML = `${m.name}<small>${moveTypeLabel} · puissance ${m.power} (${cost} effort)${canAfford ? '' : ' - Insuffisant'}</small>`;
+      if (!canAfford) {
+        b.disabled = true;
+      } else {
+        b.addEventListener('click', () => this.playTurn(id));
+      }
       box.appendChild(b);
     });
+
+    const restBtn = document.createElement('button');
+    restBtn.className = 'btn-main-team full';
+    restBtn.innerHTML = 'Se reposer <small>Récupérer de l’effort (+35)</small>';
+    restBtn.addEventListener('click', () => this.playRestTurn());
+    box.appendChild(restBtn);
 
     const backBtn = document.createElement('button');
     backBtn.className = 'btn-back full';
@@ -431,9 +446,8 @@ export class CombatEngine {
 
     await wait(1200);
 
-    // Foe turn: foe attacks incoming creature
-    const fMove = this.moves[pick(this.foe.base.moves)];
-    await this.attack(this.foe, this.me, fMove, 'me');
+    // Foe turn: foe attacks incoming creature or rests
+    await this.executeFoeTurn();
 
     if (this.me.hp <= 0) {
       await this.handlePlayerKO();
@@ -518,11 +532,10 @@ export class CombatEngine {
     await wait(800);
 
     if (this.foe.base.spd > this.me.base.spd) {
-      say(`${this.foe.base.name} est plus rapide et t’attaque avant ta fuite !`);
+      say(`${this.foe.base.name} est plus rapide et tente d'agir avant ta fuite !`);
       await wait(900);
 
-      const fMove = this.moves[pick(this.foe.base.moves)];
-      await this.attack(this.foe, this.me, fMove, 'me');
+      await this.executeFoeTurn();
 
       if (this.me.hp <= 0) {
         await this.handlePlayerKO();
@@ -558,21 +571,81 @@ export class CombatEngine {
     else if (mult < 1) { say('Ce n’est pas très efficace…'); await wait(900); }
   }
 
+  getFoeAction() {
+    const affordableFoeMoves = this.foe.base.moves.filter((id) => (this.moves[id]?.cost || 10) <= this.foe.effort);
+    if (affordableFoeMoves.length > 0) {
+      return { type: 'attack', move: this.moves[pick(affordableFoeMoves)] };
+    }
+    return { type: 'rest' };
+  }
+
+  async executeFoeTurn() {
+    const fAction = this.getFoeAction();
+    await this.executeAction(this.foe, this.me, fAction, 'me');
+  }
+
+  async executeAction(a, d, action, slot) {
+    if (a.hp <= 0) return;
+    if (action.type === 'attack') {
+      const cost = action.move.cost || 10;
+      a.effort = Math.max(0, a.effort - cost);
+      a.base.effort = a.effort;
+      this.updateBars();
+      await this.attack(a, d, action.move, slot);
+    } else if (action.type === 'rest') {
+      const gain = 35;
+      a.effort = Math.min(a.maxEffort, a.effort + gain);
+      a.base.effort = a.effort;
+      this.updateBars();
+      say(`${a.base.name} se repose et récupère de l’effort (+${gain}) !`);
+      await wait(1100);
+    }
+  }
+
   async playTurn(moveId) {
     if (this.busy) return;
     this.busy = true;
     this.setMoveButtons(false);
 
-    const pMove = this.moves[moveId];
-    const fMove = this.moves[pick(this.foe.base.moves)];
+    const pAction = { type: 'attack', move: this.moves[moveId] };
+    const fAction = this.getFoeAction();
 
     const playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
     const order = playerFirst
-      ? [[this.me, this.foe, pMove, 'foe'], [this.foe, this.me, fMove, 'me']]
-      : [[this.foe, this.me, fMove, 'me'], [this.me, this.foe, pMove, 'foe']];
+      ? [[this.me, this.foe, pAction, 'foe'], [this.foe, this.me, fAction, 'me']]
+      : [[this.foe, this.me, fAction, 'me'], [this.me, this.foe, pAction, 'foe']];
 
-    for (const [a, d, m, slot] of order) {
-      await this.attack(a, d, m, slot);
+    for (const [a, d, act, slot] of order) {
+      await this.executeAction(a, d, act, slot);
+      if (d.hp <= 0) {
+        if (d === this.me) {
+          await this.handlePlayerKO();
+        } else {
+          await this.endBattle(true, d);
+        }
+        return;
+      }
+    }
+
+    this.busy = false;
+    this.showMainActions();
+  }
+
+  async playRestTurn() {
+    if (this.busy) return;
+    this.busy = true;
+    this.setMoveButtons(false);
+
+    const pAction = { type: 'rest' };
+    const fAction = this.getFoeAction();
+
+    const playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    const order = playerFirst
+      ? [[this.me, this.foe, pAction, 'foe'], [this.foe, this.me, fAction, 'me']]
+      : [[this.foe, this.me, fAction, 'me'], [this.me, this.foe, pAction, 'foe']];
+
+    for (const [a, d, act, slot] of order) {
+      await this.executeAction(a, d, act, slot);
       if (d.hp <= 0) {
         if (d === this.me) {
           await this.handlePlayerKO();
