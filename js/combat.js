@@ -121,7 +121,11 @@ export class CombatEngine {
       const bar = $('#' + id + 'Bar');
       bar.style.width = Math.max(0, pct) + '%';
       bar.style.background = pct > 50 ? '#6fcf7f' : pct > 20 ? '#f0b84a' : '#e5594f';
-      $('#' + id + 'Hp').textContent = `PV ${f.hp}/${maxHp}`;
+
+      const effortText = (this.settings && this.settings.showEffort)
+        ? ` · Effort ${f.effort !== undefined ? f.effort : 100}/${f.maxEffort || 100}`
+        : '';
+      $('#' + id + 'Hp').textContent = `PV ${f.hp}/${maxHp}${effortText}`;
     });
   }
 
@@ -160,6 +164,13 @@ export class CombatEngine {
     teamBtn.addEventListener('click', () => this.showTeamSummary());
     box.appendChild(teamBtn);
 
+    const optionsBtn = document.createElement('button');
+    optionsBtn.className = 'btn-main-team';
+    optionsBtn.id = 'mainOptionsBtn';
+    optionsBtn.innerHTML = 'Options <small>Préférences & affichage</small>';
+    optionsBtn.addEventListener('click', () => this.showCombatOptions());
+    box.appendChild(optionsBtn);
+
     if (this.isWild) {
       const fleeBtn = document.createElement('button');
       fleeBtn.id = 'fleeBtn';
@@ -175,6 +186,58 @@ export class CombatEngine {
       forfeitBtn.addEventListener('click', () => this.forfeit());
       box.appendChild(forfeitBtn);
     }
+
+    box.hidden = false;
+    this.setMoveButtons(!this.busy);
+  }
+
+  showCombatOptions() {
+    this.hideSubViews();
+    const box = $('#detailBox');
+    if (!box) return;
+    box.replaceChildren();
+
+    say(`Options du jeu :`);
+
+    const title = document.createElement('div');
+    title.className = 'detail-title';
+    title.style.marginBottom = '10px';
+    title.textContent = 'Configuration & Affichage';
+    box.appendChild(title);
+
+    const optRow = document.createElement('div');
+    optRow.style.display = 'flex';
+    optRow.style.justifyContent = 'space-between';
+    optRow.style.alignItems = 'center';
+    optRow.style.padding = '8px 10px';
+    optRow.style.background = '#111f17';
+    optRow.style.borderRadius = '6px';
+
+    const labelDiv = document.createElement('div');
+    labelDiv.innerHTML = `<strong>Effort / Endurance</strong><div style="font-size:0.8rem; color:var(--muted);">Afficher l'endurance des compagnons</div>`;
+    optRow.appendChild(labelDiv);
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'btn-reorder';
+    toggleBtn.style.padding = '6px 12px';
+    toggleBtn.style.fontWeight = 'bold';
+    toggleBtn.style.fontSize = '0.85rem';
+    toggleBtn.textContent = (this.settings && this.settings.showEffort) ? 'Visible (ON)' : 'Masqué (OFF)';
+    toggleBtn.addEventListener('click', () => {
+      if (!this.settings) this.settings = { showEffort: true };
+      this.settings.showEffort = !this.settings.showEffort;
+      this.updateBars();
+      this.showCombatOptions();
+    });
+    optRow.appendChild(toggleBtn);
+    box.appendChild(optRow);
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn-back full';
+    backBtn.style.marginTop = '10px';
+    backBtn.innerHTML = '◄ Retour <small>Menu principal du combat</small>';
+    backBtn.addEventListener('click', () => this.showMainActions());
+    box.appendChild(backBtn);
 
     box.hidden = false;
     this.setMoveButtons(!this.busy);
@@ -536,6 +599,10 @@ export class CombatEngine {
   }
 
   async attack(att, def, move, defSlot) {
+    att.effort = Math.max(0, (att.effort !== undefined ? att.effort : 100) - 5);
+    att.base.effort = att.effort;
+    this.updateBars();
+
     say(`${att.base.name} utilise ${move.name} !`);
     await wait(800);
     if (Math.random() * 100 > move.acc) {
