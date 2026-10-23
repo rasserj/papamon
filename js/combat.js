@@ -1,4 +1,5 @@
 import { makeCreatureSprite } from './sprites.js';
+import { xpRecompense, appliquerXp, statAuNiveau } from './progression.js';
 
 const $ = (s) => document.querySelector(s);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -43,18 +44,21 @@ export function applyQualityToCreature(baseCreature, qualityInfo = null, qualiti
 }
 
 export class CombatEngine {
-  constructor(types, moves, creatures, qualities = null, settings = null) {
+  constructor(types, moves, creatures, qualities = null, settings = null, progression = null) {
     this.types = types;
     this.moves = moves;
     this.creatures = creatures;
     this.qualities = qualities;
     this.settings = settings || { showEffort: true };
+    this.progression = progression || {};
     this.me = null;
     this.foe = null;
     this.playerTeam = [];
     this.busy = true;
     this.isWild = true;
     this.onBattleEnd = null;
+    this.battleParticipants = new Set();
+    this.finalHitCompanion = null;
 
     this.setupKeyboard();
   }
@@ -293,7 +297,7 @@ export class CombatEngine {
       const typeLabel = this.types[c.type] ? this.types[c.type].label : c.type;
       const maxHp = c.maxHp || c.hp;
       const hpStatus = c.hp <= 0 ? `<span style="color:#e5594f; font-weight:bold;">K.O. (0/${maxHp})</span>` : `PV ${c.hp}/${maxHp}`;
-      metaDiv.innerHTML = `<span class="title">${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · ${hpStatus}</span>`;
+      metaDiv.innerHTML = `<span class="title">${c.name} <small class="quality-badge">[${quality}]</small> <small style="color:var(--muted);">Niv. ${c.level || 1}</small></span><span class="sub-text">Type ${typeLabel} · ${hpStatus}</span>`;
       infoDiv.appendChild(metaDiv);
 
       card.appendChild(infoDiv);
@@ -375,7 +379,7 @@ export class CombatEngine {
     const headerText = document.createElement('div');
     const quality = c.quality || 'C';
     const typeLabel = this.types[c.type] ? this.types[c.type].label : c.type;
-    headerText.innerHTML = `<div class="detail-title">${c.name} <span class="quality-badge">[Qualité ${quality}]</span></div><div style="color:var(--muted); font-size:0.85rem;">Type ${typeLabel}</div>`;
+    headerText.innerHTML = `<div class="detail-title">${c.name} <span class="quality-badge">[Qualité ${quality}]</span> <span style="font-size:0.9rem; color:var(--muted);">Niv. ${c.level || 1}</span></div><div style="color:var(--muted); font-size:0.85rem;">Type ${typeLabel} · XP ${c.xp || 0}</div>`;
     header.appendChild(headerText);
     box.appendChild(header);
 
@@ -461,8 +465,9 @@ export class CombatEngine {
     say(`${oldName} revient ! En avant, ${newBaseCreature.name} !`);
 
     this.me = this.fighter(newBaseCreature);
+    if (this.battleParticipants) this.battleParticipants.add(this.me.base);
 
-    $('#meName').textContent = this.me.base.name;
+    $('#meName').textContent = `${this.me.base.name} (Niv. ${this.me.base.level || 1})`;
     const quality = this.me.base.quality || 'C';
     const qBadge = $('#meQuality');
     if (qBadge) qBadge.textContent = ` [${quality}]`;
@@ -514,15 +519,37 @@ export class CombatEngine {
     this.me = this.fighter(lead);
 
     const rawFoe = foeCreature || pick(this.creatures);
-    const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe, null, this.qualities) : rawFoe;
+    const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe, null, this.qualities) : { ...rawFoe };
+    generatedFoe.speciesId = generatedFoe.speciesId || rawFoe.id || generatedFoe.id;
+
+    // Attribuer niveau au foe basé sur le niveau du joueur
+    if (!generatedFoe.level) {
+      const leadLevel = lead.level || 1;
+      generatedFoe.level = Math.max(1, leadLevel + Math.floor(Math.random() * 3) - 1);
+    }
+    const qKey = generatedFoe.quality || "C";
+    const tKey = generatedFoe.trait || null;
+    const maxHp = statAuNiveau(rawFoe, "hp", generatedFoe.level, qKey, tKey, this.progression, this.qualities);
+    generatedFoe.maxHp = maxHp;
+    generatedFoe.hp = maxHp;
+    generatedFoe.atk = statAuNiveau(rawFoe, "atk", generatedFoe.level, qKey, tKey, this.progression, this.qualities);
+    generatedFoe.def = statAuNiveau(rawFoe, "def", generatedFoe.level, qKey, tKey, this.progression, this.qualities);
+    generatedFoe.spd = statAuNiveau(rawFoe, "spd", generatedFoe.level, qKey, tKey, this.progression, this.qualities);
+    const maxEffort = statAuNiveau(rawFoe, "effort", generatedFoe.level, qKey, tKey, this.progression, this.qualities);
+    generatedFoe.maxEffort = maxEffort;
+    generatedFoe.effort = maxEffort;
+
     this.foe = this.fighter(generatedFoe);
+
+    this.battleParticipants = new Set([this.me.base]);
+    this.finalHitCompanion = null;
 
     $('#select').hidden = true;
     $('#map').hidden = true;
     $('#battle').hidden = false;
 
     [['me', this.me], ['foe', this.foe]].forEach(([id, f]) => {
-      $('#' + id + 'Name').textContent = f.base.name;
+      $('#' + id + 'Name').textContent = `${f.base.name} (Niv. ${f.base.level || 1})`;
       const quality = f.base.quality || 'C';
       const qBadge = $('#' + id + 'Quality');
       if (qBadge) qBadge.textContent = ` [${quality}]`;
@@ -534,7 +561,7 @@ export class CombatEngine {
     this.updateBars();
 
     this.busy = true;
-    say(this.isWild ? `${this.foe.base.name} (Qualité ${this.foe.base.quality}) sauvage apparaît !` : `Un dresseur envoie ${this.foe.base.name} !`);
+    say(this.isWild ? `${this.foe.base.name} sauvage (Niv. ${this.foe.base.level}) apparaît !` : `Un dresseur envoie ${this.foe.base.name} (Niv. ${this.foe.base.level}) !`);
     await wait(1200);
 
     this.busy = false;
@@ -599,11 +626,22 @@ export class CombatEngine {
     sprite.classList.add('hit');
     def.hp = Math.max(0, def.hp - dmg);
     def.base.hp = def.hp; // Persist HP damage on base companion
+    if (def.hp <= 0 && def === this.foe) {
+      this.finalHitCompanion = att.base;
+    }
     this.updateBars();
     await wait(700);
     sprite.classList.remove('hit');
     if (mult > 1) { say('C’est très efficace !'); await wait(900); }
     else if (mult < 1) { say('Ce n’est pas très efficace…'); await wait(900); }
+  }
+
+  getActionPriority(action) {
+    if (!action) return 0;
+    if (action.type === 'attack' && action.move && action.move.category === 'dodge') {
+      return 1;
+    }
+    return 0;
   }
 
   getFoeAction() {
@@ -614,6 +652,11 @@ export class CombatEngine {
       return cost <= this.foe.effort;
     });
     if (affordableFoeMoves.length > 0) {
+      const dodgeId = affordableFoeMoves.find((id) => this.moves[id]?.category === 'dodge');
+      const foeLowHp = (this.foe.hp / (this.foe.base.maxHp || this.foe.maxHp || this.foe.hp)) <= 0.35;
+      if (dodgeId && foeLowHp && Math.random() < 0.50) {
+        return { type: 'attack', move: this.moves[dodgeId] };
+      }
       return { type: 'attack', move: this.moves[pick(affordableFoeMoves)] };
     }
     return { type: 'rest' };
@@ -682,7 +725,25 @@ export class CombatEngine {
     const pAction = { type: 'attack', move: this.moves[moveId] };
     const fAction = this.getFoeAction();
 
-    const playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    if (pAction.move && pAction.move.category === 'dodge') {
+      this.me.isDodging = true;
+    }
+    if (fAction.move && fAction.move.category === 'dodge') {
+      this.foe.isDodging = true;
+    }
+
+    const pPriority = this.getActionPriority(pAction);
+    const fPriority = this.getActionPriority(fAction);
+
+    let playerFirst = false;
+    if (pPriority > fPriority) {
+      playerFirst = true;
+    } else if (fPriority > pPriority) {
+      playerFirst = false;
+    } else {
+      playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    }
+
     const order = playerFirst
       ? [[this.me, this.foe, pAction, 'foe'], [this.foe, this.me, fAction, 'me']]
       : [[this.foe, this.me, fAction, 'me'], [this.me, this.foe, pAction, 'foe']];
@@ -690,6 +751,8 @@ export class CombatEngine {
     for (const [a, d, act, slot] of order) {
       await this.executeAction(a, d, act, slot);
       if (d.hp <= 0) {
+        this.me.isDodging = false;
+        this.foe.isDodging = false;
         if (d === this.me) {
           await this.handlePlayerKO();
         } else {
@@ -699,6 +762,8 @@ export class CombatEngine {
       }
     }
 
+    this.me.isDodging = false;
+    this.foe.isDodging = false;
     this.recoverReserveEffort();
     this.busy = false;
     this.showMainActions();
@@ -715,7 +780,22 @@ export class CombatEngine {
     const pAction = { type: 'rest' };
     const fAction = this.getFoeAction();
 
-    const playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    if (fAction.move && fAction.move.category === 'dodge') {
+      this.foe.isDodging = true;
+    }
+
+    const pPriority = this.getActionPriority(pAction);
+    const fPriority = this.getActionPriority(fAction);
+
+    let playerFirst = false;
+    if (pPriority > fPriority) {
+      playerFirst = true;
+    } else if (fPriority > pPriority) {
+      playerFirst = false;
+    } else {
+      playerFirst = this.me.base.spd > this.foe.base.spd || (this.me.base.spd === this.foe.base.spd && Math.random() < 0.5);
+    }
+
     const order = playerFirst
       ? [[this.me, this.foe, pAction, 'foe'], [this.foe, this.me, fAction, 'me']]
       : [[this.foe, this.me, fAction, 'me'], [this.me, this.foe, pAction, 'foe']];
@@ -723,6 +803,8 @@ export class CombatEngine {
     for (const [a, d, act, slot] of order) {
       await this.executeAction(a, d, act, slot);
       if (d.hp <= 0) {
+        this.me.isDodging = false;
+        this.foe.isDodging = false;
         if (d === this.me) {
           await this.handlePlayerKO();
         } else {
@@ -732,6 +814,8 @@ export class CombatEngine {
       }
     }
 
+    this.me.isDodging = false;
+    this.foe.isDodging = false;
     this.recoverReserveEffort();
     this.busy = false;
     this.showMainActions();
@@ -757,6 +841,56 @@ export class CombatEngine {
       await wait(1100);
     }
     say(playerWon ? 'Victoire ! Bravo !' : 'Défaite… ce sera pour la prochaine fois.');
+    await wait(1000);
+
+    if (this.foe && this.playerTeam && this.playerTeam.length > 0) {
+      for (const comp of this.playerTeam) {
+        const estCoupFinal = (comp === this.finalHitCompanion);
+        const estPartEntre = this.battleParticipants ? this.battleParticipants.has(comp) : false;
+        const estKO = (comp.hp <= 0);
+
+        const xpGagne = xpRecompense({
+          niveauE: this.foe.base.level || 1,
+          niveauBeneficiaire: comp.level || 1,
+          qualiteE: this.foe.base.quality || 'C',
+          typeCombat: this.isWild ? 'sauvage' : 'dresseur',
+          difficulteE: this.foe.base.difficulte || 1.0,
+          estCoupFinal,
+          pvRestantsE: this.foe.hp,
+          pvMaxE: this.foe.maxHp,
+          traitBeneficiaire: comp.trait || null,
+          estKO,
+          estPartEntre,
+          estDefaiteTotale: !playerWon
+        }, this.progression);
+
+        if (xpGagne > 0) {
+          const res = appliquerXp(comp, xpGagne, this.progression, this.creatures, this.qualities);
+          say(`${comp.name} gagne +${xpGagne} XP !`);
+          await wait(900);
+
+          if (res.niveauxGagnes > 0) {
+            say(`★ ${comp.name} passe au niveau ${res.nouveauNiveau} !`);
+            await wait(1000);
+
+            if (res.movesAppris && res.movesAppris.length > 0) {
+              for (const mId of res.movesAppris) {
+                const moveObj = this.moves[mId];
+                const moveName = moveObj ? moveObj.name : mId;
+                say(`${comp.name} apprend ${moveName} !`);
+                await wait(1000);
+              }
+            }
+
+            if (res.evolution) {
+              say(`✨ Incroyable ! ${comp.name} évolue en ${res.evolution} !`);
+              await wait(1200);
+            }
+          }
+        }
+      }
+    }
+
     await this.finishBattle(playerWon, 'KO');
   }
 

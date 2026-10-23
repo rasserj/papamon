@@ -1,0 +1,41 @@
+{
+  "niveauMax": 100,
+  "baseXp": 12,
+  "xpFormulaExponent": 2,
+  "xpFormulaMultiplier": 10,
+  "qualiteMultipliers": {
+    "D": 0.8,
+    "C": 1.0,
+    "B": 1.2,
+    "A": 1.5,
+    "S": 2.0
+  },
+  "combatTypeMultipliers": {
+    "sauvage": 1.0,
+    "dresseur": 1.5
+  },
+  "gainAmplitudes": {
+    "faible": 1.4,
+    "moyen": 2.0,
+    "fort": 2.8
+  },
+  "courbeExponents": {
+    "precoce": 0.7,
+    "reguliere": 1.0,
+    "tardive": 1.5
+  },
+  "traitGainModifiers": {
+    "rapide": { "spd": 1.25 },
+    "endurant": { "maxEffort": 1.25 },
+    "costaud": { "hp": 1.25 },
+    "belliqueux": { "atk": 1.15, "def": 0.9 },
+    "prudent": { "def": 1.15, "atk": 0.9 },
+    "peureux": { "spd": 1.1, "atk": 0.9 },
+    "competiteur": { "atk": 1.1 },
+    "altruiste": { "hp": 1.1 },
+    "intelligent": {}
+  },
+  "traitXpBonus": {
+    "intelligent": 0.25
+  }
+}

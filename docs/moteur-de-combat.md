@@ -1,6 +1,6 @@
-# Moteur de combat – état v0.2.9
+# Moteur de combat – état v0.3.0
 
-*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.2.9).*
+*Ce document décrit ce que fait réellement le code de `js/combat.js` (v0.3.0).*
 
 ## 1. Vue d’ensemble
 
@@ -66,8 +66,8 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 - **Récupération hors combat (à la sortie de combat)** :
   - Si le compagnon n'est pas dans le rouge (`PV > 20 % maxPV`) : réinitialisation complète et gratuite (`effort = maxEffort`).
   - Si le compagnon est dans le rouge (`PV <= 20 % maxPV`) : régénération jusqu'à 50 % de l'effort max si son effort était plus bas, sans jamais baisser l'effort courant s'il était déjà supérieur (`effort = max(effort, 50 % maxEffort)`).
-- **Move « Esquive » et surcoût consécutif** :
-  - L'attaque Esquive permet d'esquiver toutes les attaques adverses durant le tour.
+- **Move « Esquive » et surcoût consécutif (v0.3.0)** :
+  - L'attaque Esquive bénéficie d'une **priorité d'action (+1)** et pré-déclare la posture d'esquive dès le début du tour. Elle permet d'esquiver toutes les attaques adverses durant le tour, quelle que soit la vitesse respective des combattants.
   - Son coût de base est de **10 points d'effort**, avec un surcoût de **+5 effort par utilisation consécutive** (`10 + 5 * n`).
   - L'utilisation de toute autre action (autre attaque, repos, changement) réinitialise le compteur d'esquives consécutives à 0.
 - **IA adverse** : l'adversaire gère également son effort. S'il n'a pas suffisamment d'effort pour utiliser une attaque disponible, il reprend son souffle automatiquement.
@@ -75,7 +75,7 @@ dégâts = max(1, arrondi( puissance × attaque ÷ (50 + défense_cible) × mult
 
 ## 6. Interface et affichage
 
-- Version affichée à l'écran : **v0.2.9**.
+- Version affichée à l'écran : **v0.3.0**.
 - Affichage dynamique de l'effort dans la carte de combat (`PV X/Y · Effort A/B`) lorsque l'option est activée.
 - Menu d'action hiérarchique avec sous-vues (Attaquer, Créatures/Équipe, Détails/Observation).
 - Onglet **Options** dans le menu du jeu pour paramétrer la visibilité du mécanisme d'effort/endurance (visible par défaut).
