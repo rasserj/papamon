@@ -2,6 +2,19 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-23 (v0.4.0 - Système de Niveaux, Formules d'XP & Croissance de Stats)
+
+- Incrémentation officielle de la version affichée : **v0.4.0**.
+- Création du module `js/progression.js` et de la suite de tests `tests/progression.test.mjs`.
+- Implémentation du système de niveau (jusqu'à 100 via paramètre `niveauMax` dans `data/progression.json`) et de la formule d'XP `10 * n^2`.
+- Formule d'XP de récompense de combat avec facteurs de niveau, de qualité, de type de combat (sauvage 1.0 vs dresseur 1.5), d'espèce (`difficulte`), de duel (`F_duel`) et de trait (`intelligent` +25%).
+- Calcul de croissance des stats non-linéaire selon la forme de courbe (`precoce`, `reguliere`, `tardive`) et l'amplitude de gain (`faible`, `moyen`, `fort`).
+- Prise en compte des modificateurs de traits de caractère sur le gain des stats à chaque montée de niveau.
+- Distribution d'expérience à toute l'équipe en fin de combat selon les participations (coup final 100%, combattants entrés 50%, K.O. 40%, défaite totale 40%).
+- Gestion automatique de l'apprentissage de nouvelles attaques et des évolutions par niveau.
+- Affichage du niveau (`Niv. X`) et de l'XP dans l'interface de combat et le menu d'équipe.
+- Mise à jour de `index.html`, `data/progression.json`, `data/creatures.json`, `js/combat.js`, `js/main.js` et `docs/journal.md`.
+
 ## 2026-10-18 (v0.3.0 - Priorité d'Esquive & Pré-déclaration de Posture)
 
 - Incrémentation officielle de la version affichée : **v0.3.0**.

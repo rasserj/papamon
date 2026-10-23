@@ -6,20 +6,23 @@ let combatEngine = null;
 let mapEngine = null;
 let selectedCreature = null;
 let playerTeam = [];
-let gameData = { types: {}, moves: {}, creatures: [], qualities: [] };
+import { calculerToutesStats } from './progression.js';
+
+let gameData = { types: {}, moves: {}, creatures: [], qualities: [], progression: {} };
 let gameSettings = { showEffort: true };
 
 async function init() {
-  const [types, moves, creatures, qualities] = await Promise.all([
+  const [types, moves, creatures, qualities, progression] = await Promise.all([
     fetch('./data/types.json').then((r) => r.json()),
     fetch('./data/moves.json').then((r) => r.json()),
     fetch('./data/creatures.json').then((r) => r.json()),
-    fetch('./data/qualities.json').then((r) => r.json())
+    fetch('./data/qualities.json').then((r) => r.json()),
+    fetch('./data/progression.json').then((r) => r.json())
   ]);
 
-  gameData = { types, moves, creatures, qualities };
+  gameData = { types, moves, creatures, qualities, progression };
 
-  combatEngine = new CombatEngine(types, moves, creatures, qualities, gameSettings);
+  combatEngine = new CombatEngine(types, moves, creatures, qualities, gameSettings, progression);
 
   const startersBox = document.querySelector('#starters');
   combatEngine.buildSelect(startersBox, (creature) => {
@@ -27,10 +30,18 @@ async function init() {
     const teamOthers = creatures.filter((c) => c.id !== creature.id);
     playerTeam = [selectedCreature, ...teamOthers].slice(0, 6);
     playerTeam.forEach((c) => {
-      c.maxHp = c.maxHp || c.hp;
-      c.hp = c.hp;
-      c.effort = c.effort !== undefined ? c.effort : 100;
-      c.maxEffort = c.maxEffort || 100;
+      if (!c.level) c.level = 1;
+      if (c.xp === undefined) c.xp = 0;
+      if (!c.quality) c.quality = 'C';
+
+      const computed = calculerToutesStats(c, creatures, progression, qualities);
+      c.maxHp = computed.maxHp;
+      c.hp = c.maxHp;
+      c.atk = computed.atk;
+      c.def = computed.def;
+      c.spd = computed.spd;
+      c.maxEffort = computed.maxEffort;
+      c.effort = c.maxEffort;
     });
     startMapExploration();
   });
@@ -208,7 +219,7 @@ function showMapTeamSummary() {
     const typeLabel = gameData.types[c.type] ? gameData.types[c.type].label : c.type;
     const maxHp = c.maxHp || c.hp;
     const hpStatus = c.hp <= 0 ? `<span style="color:#e5594f; font-weight:bold;">K.O. (0/${maxHp})</span>` : `PV ${c.hp}/${maxHp}`;
-    metaDiv.innerHTML = `<span class="title">${idx === 0 ? '★ ' : ''}${c.name} <small class="quality-badge">[${quality}]</small></span><span class="sub-text">Type ${typeLabel} · ${hpStatus}</span>`;
+    metaDiv.innerHTML = `<span class="title">${idx === 0 ? '★ ' : ''}${c.name} <small class="quality-badge">[${quality}]</small> <small style="color:var(--muted);">Niv. ${c.level || 1}</small></span><span class="sub-text">Type ${typeLabel} · ${hpStatus}</span>`;
     infoDiv.appendChild(metaDiv);
 
     card.appendChild(infoDiv);
@@ -270,7 +281,7 @@ function showMapCreatureDetail(c) {
   const headerText = document.createElement('div');
   const quality = c.quality || 'C';
   const typeLabel = gameData.types[c.type] ? gameData.types[c.type].label : c.type;
-  headerText.innerHTML = `<div class="detail-title">${c.name} <span class="quality-badge">[Qualité ${quality}]</span></div><div style="color:var(--muted); font-size:0.85rem;">Type ${typeLabel}</div>`;
+  headerText.innerHTML = `<div class="detail-title">${c.name} <span class="quality-badge">[Qualité ${quality}]</span> <span style="font-size:0.9rem; color:var(--muted);">Niv. ${c.level || 1}</span></div><div style="color:var(--muted); font-size:0.85rem;">Type ${typeLabel} · XP ${c.xp || 0}</div>`;
   header.appendChild(headerText);
   box.appendChild(header);
 
