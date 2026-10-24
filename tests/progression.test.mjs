@@ -153,4 +153,45 @@ assert.strictEqual(injuredComp.maxEffort >= 100, true);
 // Et 'Reprendre son souffle' (effet intégral de +35 effort) doit rester possible quand l'effort retombe
 assert.strictEqual(injuredComp.maxEffort - injuredComp.effort >= 35 || injuredComp.maxEffort >= 35, true);
 
+// Test 6: Compagnon en réserve gagne de l'XP et monte de niveau (réévaluation des stats)
+const reserveComp = {
+  id: "gouttelin_reserve",
+  speciesId: "gouttelin",
+  name: "Gouttelin",
+  level: 1,
+  xp: 0,
+  quality: "C",
+  hp: 30,
+  maxHp: 46,
+  effort: 50,
+  maxEffort: 95,
+  moves: ["charge", "jet", "esquive"]
+};
+
+const resultReserve = appliquerXp(reserveComp, 15, progressionConfig, creaturesData, qualitiesData);
+assert.strictEqual(reserveComp.level, 2);
+assert.strictEqual(reserveComp.maxHp >= 46, true);
+assert.strictEqual(reserveComp.hp > 0, true);
+
+// Test 7: Compagnon K.O. gagne de l'XP lors d'une défaite (réévaluation des PV Max mais SANS réanimation)
+const koComp = {
+  id: "cendrille_ko",
+  speciesId: "cendrille",
+  name: "Cendrille",
+  level: 1,
+  xp: 0,
+  quality: "C",
+  hp: 0, // K.O.
+  maxHp: 40,
+  effort: 0,
+  maxEffort: 90,
+  moves: ["charge", "etincelle", "esquive"]
+};
+
+const resultKO = appliquerXp(koComp, 15, progressionConfig, creaturesData, qualitiesData);
+assert.strictEqual(koComp.level, 2);
+assert.strictEqual(koComp.hp, 0); // Toujours K.O., aucune réanimation !
+assert.strictEqual(koComp.maxHp >= 40, true); // Stats réévaluées
+assert.strictEqual(koComp.atk > 0, true);
+
 console.log("Tous les tests du module progression sont passés avec succès !");
