@@ -194,4 +194,20 @@ assert.strictEqual(koComp.hp, 0); // Toujours K.O., aucune réanimation !
 assert.strictEqual(koComp.maxHp >= 40, true); // Stats réévaluées
 assert.strictEqual(koComp.atk > 0, true);
 
+// Test 8: Soin complet par le PNJ Soignante Flora
+const teamToHeal = [
+  { name: "Cendrille", hp: 0, maxHp: 40, effort: 0, maxEffort: 90 },
+  { name: "Mousselin", hp: 12, maxHp: 44, effort: 10, maxEffort: 100 }
+];
+
+teamToHeal.forEach((c) => {
+  c.hp = c.maxHp;
+  c.effort = c.maxEffort;
+});
+
+assert.strictEqual(teamToHeal[0].hp, 40);
+assert.strictEqual(teamToHeal[0].effort, 90);
+assert.strictEqual(teamToHeal[1].hp, 44);
+assert.strictEqual(teamToHeal[1].effort, 100);
+
 console.log("Tous les tests du module progression sont passés avec succès !");

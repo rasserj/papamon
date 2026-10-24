@@ -1,10 +1,11 @@
 import { renderMapTile, renderHeroTile } from './sprites.js';
 
 export class MapEngine {
-  constructor(canvas, onEncounter) {
+  constructor(canvas, onEncounter, onNpcInteract) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.onEncounter = onEncounter;
+    this.onNpcInteract = onNpcInteract;
     this.mapData = null;
     this.player = { x: 0, y: 0 };
     this.tileSize = 32; // Screen display size per tile
@@ -96,7 +97,16 @@ export class MapEngine {
     const targetY = this.player.y + dy;
 
     const tile = this.getTileAt(targetX, targetY);
-    if (!tile || !tile.walkable) return;
+    if (!tile) return;
+
+    if (tile.npc) {
+      if (this.onNpcInteract) {
+        this.onNpcInteract(tile.npc);
+      }
+      return;
+    }
+
+    if (!tile.walkable) return;
 
     this.player.x = targetX;
     this.player.y = targetY;
