@@ -30,6 +30,7 @@ async function init() {
     const teamOthers = creatures.filter((c) => c.id !== creature.id);
     playerTeam = [selectedCreature, ...teamOthers].slice(0, 6);
     playerTeam.forEach((c) => {
+      c.speciesId = c.speciesId || c.id;
       if (!c.level) c.level = 1;
       if (c.xp === undefined) c.xp = 0;
       if (!c.quality) c.quality = 'C';

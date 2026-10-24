@@ -127,4 +127,30 @@ const resultApp = appliquerXp(comp, 260, progressionConfig, creaturesData, quali
 assert.strictEqual(resultApp.niveauxGagnes > 0, true);
 assert.strictEqual(comp.level > 1, true);
 
+// Test 5: Régression bug niveau 2 - Compagnon blessé et épuisé
+const injuredComp = {
+  id: "mousselin_injured",
+  speciesId: "mousselin",
+  name: "Mousselin",
+  level: 1,
+  xp: 0,
+  quality: "C",
+  hp: 5,         // Très blessé
+  maxHp: 44,
+  atk: 12,
+  def: 10,
+  spd: 9,
+  effort: 0,     // Épuisé
+  maxEffort: 100,
+  moves: ["charge", "fouet", "esquive"]
+};
+
+const resultInjured = appliquerXp(injuredComp, 15, progressionConfig, creaturesData, qualitiesData);
+assert.strictEqual(injuredComp.level, 2);
+// Max HP et Max Effort ne doivent JAMAIS chuter à 5 ou 0 lors de la montée de niveau
+assert.strictEqual(injuredComp.maxHp >= 44, true);
+assert.strictEqual(injuredComp.maxEffort >= 100, true);
+// Et 'Reprendre son souffle' (effet intégral de +35 effort) doit rester possible quand l'effort retombe
+assert.strictEqual(injuredComp.maxEffort - injuredComp.effort >= 35 || injuredComp.maxEffort >= 35, true);
+
 console.log("Tous les tests du module progression sont passés avec succès !");

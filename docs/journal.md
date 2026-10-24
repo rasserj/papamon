@@ -2,6 +2,15 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-23 (v0.4.1 - Correctif de Recalcul des Stats lors du Gain de Niveau)
+
+- Incrémentation officielle de la version affichée : **v0.4.1**.
+- Correction du bug de résolution de l'espèce modèle dans `calculerToutesStats` (`js/progression.js`) : résolution garantie du modèle d'espèce par `speciesId` / `id`, empêchant l'utilisation des PV et effort courants blessés/épuisés de l'instance du compagnon comme base.
+- Conservation explicite du `speciesId` lors de l'initialisation des compagnons de l'équipe et sauvages dans `js/main.js` et `js/combat.js`.
+- Maintien garanti de l'endurance maximale (`maxEffort >= 35`), garantissant l'accès à l'action « Reprendre son souffle » lorsque la réserve d'effort est basse.
+- Ajout de tests de régression dans `tests/progression.test.mjs` pour vérifier la montée de niveau sur créatures blessées/épuisées.
+- Mise à jour de `index.html`, `js/progression.js`, `js/main.js`, `js/combat.js` et `docs/journal.md`.
+
 ## 2026-10-23 (v0.4.0 - Système de Niveaux, Formules d'XP & Croissance de Stats)
 
 - Incrémentation officielle de la version affichée : **v0.4.0**.

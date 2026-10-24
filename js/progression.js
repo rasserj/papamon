@@ -125,7 +125,17 @@ export function statAuNiveau(espece, statKey, niveau, qualiteKey = "C", traitKey
  * Recalcule toutes les stats courantes d'un compagnon pour son niveau actuel.
  */
 export function calculerToutesStats(compagnon, speciesData, config, qualiteData) {
-  const espece = speciesData.find(s => s.id === (compagnon.speciesId || compagnon.id)) || compagnon;
+  const targetId = compagnon.speciesId || compagnon.id;
+  let espece = Array.isArray(speciesData) ? speciesData.find(s => s.id === targetId) : null;
+
+  if (!espece) {
+    espece = {
+      ...compagnon,
+      hp: compagnon.baseHp || compagnon.maxHp || compagnon.hp || 40,
+      effort: compagnon.baseEffort || compagnon.maxEffort || compagnon.effort || 100
+    };
+  }
+
   const level = compagnon.level || 1;
   const qualite = compagnon.quality || "C";
   const trait = compagnon.trait || null;
