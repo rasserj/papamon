@@ -2,6 +2,35 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-23 (v0.4.1 - Correctif de Recalcul des Stats lors du Gain de Niveau)
+
+- Incrémentation officielle de la version affichée : **v0.4.1**.
+- Correction du bug de résolution de l'espèce modèle dans `calculerToutesStats` (`js/progression.js`) : résolution garantie du modèle d'espèce par `speciesId` / `id`, empêchant l'utilisation des PV et effort courants blessés/épuisés de l'instance du compagnon comme base.
+- Conservation explicite du `speciesId` lors de l'initialisation des compagnons de l'équipe et sauvages dans `js/main.js` et `js/combat.js`.
+- Maintien garanti de l'endurance maximale (`maxEffort >= 35`), garantissant l'accès à l'action « Reprendre son souffle » lorsque la réserve d'effort est basse.
+- Ajout de tests de régression dans `tests/progression.test.mjs` pour vérifier la montée de niveau sur créatures blessées/épuisées.
+- Mise à jour de `index.html`, `js/progression.js`, `js/main.js`, `js/combat.js` et `docs/journal.md`.
+
+## 2026-10-23 (v0.4.0 - Système de Niveaux, Formules d'XP & Croissance de Stats)
+
+- Incrémentation officielle de la version affichée : **v0.4.0**.
+- Création du module `js/progression.js` et de la suite de tests `tests/progression.test.mjs`.
+- Implémentation du système de niveau (jusqu'à 100 via paramètre `niveauMax` dans `data/progression.json`) et de la formule d'XP `10 * n^2`.
+- Formule d'XP de récompense de combat avec facteurs de niveau, de qualité, de type de combat (sauvage 1.0 vs dresseur 1.5), d'espèce (`difficulte`), de duel (`F_duel`) et de trait (`intelligent` +25%).
+- Calcul de croissance des stats non-linéaire selon la forme de courbe (`precoce`, `reguliere`, `tardive`) et l'amplitude de gain (`faible`, `moyen`, `fort`).
+- Prise en compte des modificateurs de traits de caractère sur le gain des stats à chaque montée de niveau.
+- Distribution d'expérience à toute l'équipe en fin de combat selon les participations (coup final 100%, combattants entrés 50%, K.O. 40%, défaite totale 40%).
+- Gestion automatique de l'apprentissage de nouvelles attaques et des évolutions par niveau.
+- Affichage du niveau (`Niv. X`) et de l'XP dans l'interface de combat et le menu d'équipe.
+- Mise à jour de `index.html`, `data/progression.json`, `data/creatures.json`, `js/combat.js`, `js/main.js` et `docs/journal.md`.
+
+## 2026-10-18 (v0.3.0 - Priorité d'Esquive & Pré-déclaration de Posture)
+
+- Incrémentation officielle de la version affichée : **v0.3.0**.
+- Attribution d'une priorité d'action (+1) pour l'attaque **Esquive** et pré-déclaration de la posture d'esquive dès le début du tour, garantissant la protection systématique contre les attaques adverses même si l'adversaire est plus rapide.
+- Intégration tactique de l'attaque Esquive dans l'IA adverse lorsque sa réserve d'effort le permet et en situation critique (PV <= 35%).
+- Mise à jour de `index.html`, `js/combat.js` et de la documentation (`docs/moteur-de-combat.md`, `docs/compagnon.md`, `docs/journal.md`).
+
 ## 2026-10-18 (v0.2.9 - Move Esquive, Coût Consécutif & Correction Reset Hors Combat)
 
 - Incrémentation officielle de la version affichée : **v0.2.9**.
