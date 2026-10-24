@@ -98,8 +98,57 @@ export function renderHeroTile(ctx, x, y, size) {
   });
 }
 
+// Healer NPC sprite matrix (16x16)
+const HEALER_SPRITE = [
+  '.....kkkkkk.....',
+  '....kCcCcCCk....',
+  '....kCCCCCCk....',
+  '....kCCCCCCk....',
+  '....kCCCCCCk....',
+  '....kkwkkwkk....',
+  '....kkwkkwkk....',
+  '....kppppppk....',
+  '...kppppppppk...',
+  '..kppppppppppk..',
+  '..kppppPpppppk..',
+  '..kpppPPPppppk..',
+  '..kpppPWPppppk..',
+  '...kbbk..kbbk...',
+  '...kkk....kkk...',
+  '................'
+];
+
+export function renderHealerTile(ctx, x, y, size) {
+  // Ground base
+  ctx.fillStyle = '#4a854d';
+  ctx.fillRect(x, y, size, size);
+
+  const scale = size / 16;
+  const pal = {
+    k: '#111b15',
+    C: '#e05374', // Nurse cap/hair pinkish red
+    c: '#ffffff', // Nurse cap highlight / white cross
+    w: '#ffffff',
+    p: '#e88ba2', // Nurse outfit pink
+    P: '#e53967', // Nurse emblem red cross
+    W: '#ffffff',
+    b: '#33272c'
+  };
+
+  HEALER_SPRITE.forEach((row, ry) => {
+    [...row].forEach((ch, rx) => {
+      if (ch !== '.') {
+        ctx.fillStyle = pal[ch] || '#ffffff';
+        ctx.fillRect(x + rx * scale, y + ry * scale, scale, scale);
+      }
+    });
+  });
+}
+
 export function renderMapTile(ctx, tileType, x, y, size) {
-  if (tileType === 'grass') {
+  if (tileType === 'healer') {
+    renderHealerTile(ctx, x, y, size);
+  } else if (tileType === 'grass') {
     ctx.fillStyle = '#4a854d';
     ctx.fillRect(x, y, size, size);
     ctx.fillStyle = '#3f7342';

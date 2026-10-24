@@ -10,11 +10,12 @@
     ",": { "type": "tall_grass", "walkable": true, "color": "#3f7a42", "wild": true },
     "p": { "type": "path", "walkable": true, "color": "#bca371" },
     "t": { "type": "tree", "walkable": false, "color": "#1f4a25" },
-    "w": { "type": "water", "walkable": false, "color": "#3b72a8" }
+    "w": { "type": "water", "walkable": false, "color": "#3b72a8" },
+    "h": { "type": "healer", "walkable": false, "npc": { "id": "healer_nurse", "name": "Soignante Flora", "dialog": "Bonjour ! Laisse-moi soigner tous tes compagnons fatigués !" } }
   },
   "grid": [
     "tttttttttttt",
-    "t..........t",
+    "t....h.....t",
     "t.pppppp...,t",
     "t.p....p..,,t",
     "t.p....p..,,t",

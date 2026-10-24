@@ -50,9 +50,15 @@ async function init() {
   });
 
   const canvas = document.querySelector('#mapCanvas');
-  mapEngine = new MapEngine(canvas, () => {
-    triggerWildEncounter();
-  });
+  mapEngine = new MapEngine(
+    canvas,
+    () => {
+      triggerWildEncounter();
+    },
+    (npcData) => {
+      handleNpcInteract(npcData);
+    }
+  );
 
   mapEngine.bindTouchControls(document.querySelector('.controls'));
 
@@ -392,6 +398,62 @@ function resumeMapExploration() {
     if (typeof mapEngine.draw === 'function') mapEngine.draw();
     else if (typeof mapEngine.render === 'function') mapEngine.render();
   }
+}
+
+function handleNpcInteract(npc) {
+  if (!npc) return;
+  if (npc.type === 'healer' || npc.id === 'healer_nurse') {
+    healPlayerTeam(npc);
+  } else {
+    showNpcDialog(npc.name || 'Personnage', npc.dialog || '...');
+  }
+}
+
+function healPlayerTeam(npc) {
+  playerTeam.forEach((c) => {
+    c.hp = c.maxHp || c.hp;
+    c.effort = c.maxEffort || c.effort || 100;
+  });
+
+  const dialogText = `${npc.dialog || 'Laisse-moi soigner tous tes compagnons fatigués !'}\n\n✨ Tous vos compagnons ont été entièrement soignés ! PV et endurance restaurés !`;
+  showNpcDialog(npc.name || 'Soignante Flora', dialogText);
+}
+
+function showNpcDialog(title, text) {
+  const menuBox = document.querySelector('#mapMenuBox');
+  if (!menuBox) return;
+
+  hideMapMenuSubViews();
+  const box = document.querySelector('#mapMenuMain');
+  if (!box) return;
+  box.replaceChildren();
+
+  const h2 = document.createElement('h2');
+  h2.style.margin = '0 0 10px 0';
+  h2.style.textAlign = 'center';
+  h2.style.color = 'var(--primary-color)';
+  h2.textContent = title;
+  box.appendChild(h2);
+
+  const p = document.createElement('p');
+  p.style.margin = '0 0 15px 0';
+  p.style.lineHeight = '1.4';
+  p.style.fontSize = '0.95rem';
+  p.style.whiteSpace = 'pre-line';
+  p.textContent = text;
+  box.appendChild(p);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'mapNpcCloseBtn';
+  closeBtn.className = 'btn-back full';
+  closeBtn.textContent = 'Merci ! (Fermer)';
+  closeBtn.addEventListener('click', () => {
+    menuBox.hidden = true;
+  });
+  box.appendChild(closeBtn);
+
+  menuBox.hidden = false;
+  box.hidden = false;
 }
 
 function triggerWildEncounter() {

@@ -187,11 +187,11 @@ export function appliquerXp(compagnon, xpGagne, config, speciesData, qualiteData
   let xpRequise = xpPourNiveauSuivant(currentLevel, config);
 
   let origStats = {
-    maxHp: compagnon.maxHp,
+    maxHp: compagnon.maxHp || compagnon.hp || 40,
     atk: compagnon.atk,
     def: compagnon.def,
     spd: compagnon.spd,
-    maxEffort: compagnon.maxEffort
+    maxEffort: compagnon.maxEffort || 100
   };
 
   while (compagnon.xp >= xpRequise && currentLevel < niveauMax) {
@@ -207,8 +207,11 @@ export function appliquerXp(compagnon, xpGagne, config, speciesData, qualiteData
   if (result.niveauxGagnes > 0) {
     const newStats = calculerToutesStats(compagnon, speciesData, config, qualiteData);
 
-    const diffHp = newStats.maxHp - compagnon.maxHp;
-    const diffEffort = newStats.maxEffort - compagnon.maxEffort;
+    const prevMaxHp = compagnon.maxHp || origStats.maxHp;
+    const prevMaxEffort = compagnon.maxEffort || origStats.maxEffort;
+
+    const diffHp = newStats.maxHp - prevMaxHp;
+    const diffEffort = newStats.maxEffort - prevMaxEffort;
 
     compagnon.maxHp = newStats.maxHp;
     compagnon.atk = newStats.atk;

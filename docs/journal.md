@@ -2,6 +2,25 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-24 (v0.4.5 - Premier Personnage Non Jouable (PNJ) Soignant sur la Carte)
+
+- Incrémentation officielle de la version affichée : **v0.4.5**.
+- Ajout du premier PNJ soignant (**Soignante Flora**) sur la carte de la Campagne dans `data/maps/campagne.json`.
+- Ajout de la tuile et du sprite de la Soignante en pixel art (`renderHealerTile`) dans `js/sprites.js`.
+- Implémentation de la détection des PNJ et des interactions lors des déplacements dans `js/map.js`.
+- Implémentation de la fonction de soin complet (`healPlayerTeam`) dans `js/main.js` qui restaure l'intégralité des PV (`c.hp = c.maxHp`) et de l'endurance (`c.effort = c.maxEffort`) de tous les compagnons de l'équipe, accompagnée d'un dialogue dédié.
+- Ajout de tests unitaires associés dans `tests/progression.test.mjs`.
+- Mise à jour de `index.html`, `js/sprites.js`, `js/map.js`, `js/main.js`, `data/maps/campagne.json`, `tests/progression.test.mjs` et `docs/journal.md`.
+
+## 2026-10-24 (v0.4.4 - Réévaluation des Stats des Compagnons en Réserve et K.O. lors d'une Défaite)
+
+- Incrémentation officielle de la version affichée : **v0.4.4**.
+- Sécurisation du calcul dans `appliquerXp` (`js/progression.js`) pour garantir que `prevMaxHp` et `prevMaxEffort` retombent proprement sur les valeurs initiales du compagnon.
+- Confirmation et test explicite du comportement lors d'une montée de niveau pour les compagnons en réserve et K.O. : réévaluation intégrale de toutes les statistiques maximales (`maxHp`, `atk`, `def`, `spd`, `maxEffort`).
+- Maintien strict du statut K.O. (`hp = 0`) lors d'une défaite ou d'une montée de niveau sans réanimation indue.
+- Ajout des tests de validation associés dans `tests/progression.test.mjs`.
+- Mise à jour de `index.html`, `js/progression.js`, `tests/progression.test.mjs` et `docs/journal.md`.
+
 ## 2026-10-24 (v0.4.3 - Correction de la Mutation de Modèle d'Espèce en Mémoire & Résolution Finale du Gain de Niveau)
 
 - Incrémentation officielle de la version affichée : **v0.4.3**.
