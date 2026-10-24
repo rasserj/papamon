@@ -31,6 +31,8 @@ async function init() {
     playerTeam = [selectedCreature, ...teamOthers].slice(0, 6);
     playerTeam.forEach((c) => {
       c.speciesId = c.speciesId || c.id;
+      c.baseHp = c.baseHp || c.hp || 40;
+      c.baseEffort = c.baseEffort || c.effort || 100;
       if (!c.level) c.level = 1;
       if (c.xp === undefined) c.xp = 0;
       if (!c.quality) c.quality = 'C';

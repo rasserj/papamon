@@ -2,6 +2,13 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-24 (v0.4.2 - Correctif de Conservation des Stats de Référence lors du Gain de Niveau)
+
+- Incrémentation officielle de la version affichée : **v0.4.2**.
+- Fixation définitive de la régression des PV et de l'Endurance au niveau 2 : enregistrement explicite et immuable des stats modèle de base (`baseHp`, `baseEffort`, `speciesId`) sur tous les compagnons de l'équipe et adversaires générés.
+- Sécurisation du fallback dans `calculerToutesStats` (`js/progression.js`) interdisant toute lecture des PV ou effort instantanés restants (blessures/fatigue de combat).
+- Mise à jour de `index.html`, `js/progression.js`, `js/main.js`, `js/combat.js` et `docs/journal.md`.
+
 ## 2026-10-23 (v0.4.1 - Correctif de Recalcul des Stats lors du Gain de Niveau)
 
 - Incrémentation officielle de la version affichée : **v0.4.1**.

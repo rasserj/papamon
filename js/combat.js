@@ -521,6 +521,8 @@ export class CombatEngine {
     const rawFoe = foeCreature || pick(this.creatures);
     const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe, null, this.qualities) : { ...rawFoe };
     generatedFoe.speciesId = generatedFoe.speciesId || rawFoe.id || generatedFoe.id;
+    generatedFoe.baseHp = generatedFoe.baseHp || rawFoe.hp || 40;
+    generatedFoe.baseEffort = generatedFoe.baseEffort || rawFoe.effort || 100;
 
     // Attribuer niveau au foe basé sur le niveau du joueur
     if (!generatedFoe.level) {

@@ -128,11 +128,15 @@ export function calculerToutesStats(compagnon, speciesData, config, qualiteData)
   const targetId = compagnon.speciesId || compagnon.id;
   let espece = Array.isArray(speciesData) ? speciesData.find(s => s.id === targetId) : null;
 
-  if (!espece) {
+  if (espece) {
+    if (!compagnon.speciesId) compagnon.speciesId = espece.id;
+    if (!compagnon.baseHp) compagnon.baseHp = espece.hp;
+    if (!compagnon.baseEffort) compagnon.baseEffort = espece.effort;
+  } else {
     espece = {
       ...compagnon,
-      hp: compagnon.baseHp || compagnon.maxHp || compagnon.hp || 40,
-      effort: compagnon.baseEffort || compagnon.maxEffort || compagnon.effort || 100
+      hp: compagnon.baseHp || compagnon.maxHp || 40,
+      effort: compagnon.baseEffort || compagnon.maxEffort || 100
     };
   }
 
