@@ -26,8 +26,8 @@ async function init() {
 
   const startersBox = document.querySelector('#starters');
   combatEngine.buildSelect(startersBox, (creature) => {
-    selectedCreature = creature;
-    const teamOthers = creatures.filter((c) => c.id !== creature.id);
+    selectedCreature = JSON.parse(JSON.stringify(creature));
+    const teamOthers = creatures.filter((c) => c.id !== creature.id).map((c) => JSON.parse(JSON.stringify(c)));
     playerTeam = [selectedCreature, ...teamOthers].slice(0, 6);
     playerTeam.forEach((c) => {
       c.speciesId = c.speciesId || c.id;

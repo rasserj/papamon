@@ -88,7 +88,9 @@ export function xpRecompense(params, config) {
  */
 export function statAuNiveau(espece, statKey, niveau, qualiteKey = "C", traitKey = null, config = {}, qualiteData = {}) {
   // Stat de référence (niveau 1)
-  const baseRef = espece[statKey] ?? 10;
+  let baseRef = espece[statKey] ?? 10;
+  if (statKey === "hp" && espece.baseHp) baseRef = espece.baseHp;
+  if (statKey === "effort" && espece.baseEffort) baseRef = espece.baseEffort;
 
   // Multiplicateur de qualité
   let qualiteMult = 1.0;

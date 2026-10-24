@@ -518,7 +518,7 @@ export class CombatEngine {
     }
     this.me = this.fighter(lead);
 
-    const rawFoe = foeCreature || pick(this.creatures);
+    const rawFoe = foeCreature ? JSON.parse(JSON.stringify(foeCreature)) : JSON.parse(JSON.stringify(pick(this.creatures)));
     const generatedFoe = this.isWild ? applyQualityToCreature(rawFoe, null, this.qualities) : { ...rawFoe };
     generatedFoe.speciesId = generatedFoe.speciesId || rawFoe.id || generatedFoe.id;
     generatedFoe.baseHp = generatedFoe.baseHp || rawFoe.hp || 40;

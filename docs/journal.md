@@ -2,6 +2,15 @@
 
 Nouvelles entrées en haut. Chaque contributeur (humain ou IA) ajoute une ligne à chaque modification.
 
+## 2026-10-24 (v0.4.3 - Correction de la Mutation de Modèle d'Espèce en Mémoire & Résolution Finale du Gain de Niveau)
+
+- Incrémentation officielle de la version affichée : **v0.4.3**.
+- Identification de la cause racine exacte : lors de l'initialisation de l'équipe du joueur (`js/main.js`) et des adversaires (`js/combat.js`), des références directes d'objets du tableau `gameData.creatures` étaient réutilisées, causant la mutation en mémoire des modèles d'espèces lors des dégâts/dépenses d'effort en combat.
+- Clonage profond systématique (`JSON.parse(JSON.stringify(...))`) des objets d'espèces lors de la constitution de l'équipe et de la génération des combattants.
+- Prise en compte de `espece.baseHp` et `espece.baseEffort` dans `statAuNiveau` (`js/progression.js`).
+- Validation par script d'isolation garantissant que la fiche d'espèce reste intacte et que les stats max (`PV Max: 40`, `Effort Max: 90`) ne régressent plus lors du passage au niveau 2.
+- Mise à jour de `index.html`, `js/main.js`, `js/combat.js`, `js/progression.js` et `docs/journal.md`.
+
 ## 2026-10-24 (v0.4.2 - Correctif de Conservation des Stats de Référence lors du Gain de Niveau)
 
 - Incrémentation officielle de la version affichée : **v0.4.2**.
