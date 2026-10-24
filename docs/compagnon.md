@@ -1,6 +1,6 @@
-# Entité « compagnon » – état v0.2.9
+# Entité « compagnon » – état v0.3.0
 
-*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.2.9).*
+*Un compagnon est une créature jouable ou adverse. Ce document liste ses caractéristiques telles qu’elles existent dans `data/creatures.json` (v0.3.0).*
 
 ## 1. Caractéristiques actuelles
 
