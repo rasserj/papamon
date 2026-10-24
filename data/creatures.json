@@ -4,13 +4,27 @@
     "name": "Mousselin",
     "type": "sylve",
     "quality": "C",
+    "difficulte": 1.0,
     "hp": 44,
     "atk": 12,
     "def": 10,
     "spd": 9,
+    "effort": 100,
     "top": "sprout",
     "colors": ["#4caf50", "#a5e08a"],
     "moves": ["charge", "fouet", "esquive"],
+    "croissance": {
+      "hp": { "gain": "moyen", "courbe": "reguliere" },
+      "atk": { "gain": "moyen", "courbe": "reguliere" },
+      "def": { "gain": "moyen", "courbe": "precoce" },
+      "spd": { "gain": "faible", "courbe": "tardive" },
+      "effort": { "gain": "fort", "courbe": "tardive" }
+    },
+    "apprentissage": [
+      { "niveau": 1, "move": "charge" },
+      { "niveau": 1, "move": "fouet" },
+      { "niveau": 1, "move": "esquive" }
+    ],
     "evolution": {
       "type": "level",
       "level": 16,
@@ -22,13 +36,27 @@
     "name": "Cendrille",
     "type": "braise",
     "quality": "C",
+    "difficulte": 1.0,
     "hp": 40,
     "atk": 14,
     "def": 8,
     "spd": 11,
+    "effort": 90,
     "top": "flame",
     "colors": ["#e8643c", "#ffd36b"],
     "moves": ["charge", "etincelle", "esquive"],
+    "croissance": {
+      "hp": { "gain": "faible", "courbe": "reguliere" },
+      "atk": { "gain": "fort", "courbe": "precoce" },
+      "def": { "gain": "faible", "courbe": "tardive" },
+      "spd": { "gain": "fort", "courbe": "reguliere" },
+      "effort": { "gain": "moyen", "courbe": "tardive" }
+    },
+    "apprentissage": [
+      { "niveau": 1, "move": "charge" },
+      { "niveau": 1, "move": "etincelle" },
+      { "niveau": 1, "move": "esquive" }
+    ],
     "evolution": {
       "type": "item",
       "item": "pierre_braise",
@@ -40,13 +68,27 @@
     "name": "Gouttelin",
     "type": "flot",
     "quality": "C",
+    "difficulte": 1.0,
     "hp": 46,
     "atk": 11,
     "def": 12,
     "spd": 10,
+    "effort": 95,
     "top": "drop",
     "colors": ["#3f8fe0", "#9fd8ff"],
     "moves": ["charge", "jet", "esquive"],
+    "croissance": {
+      "hp": { "gain": "fort", "courbe": "reguliere" },
+      "atk": { "gain": "faible", "courbe": "reguliere" },
+      "def": { "gain": "fort", "courbe": "tardive" },
+      "spd": { "gain": "faible", "courbe": "precoce" },
+      "effort": { "gain": "moyen", "courbe": "reguliere" }
+    },
+    "apprentissage": [
+      { "niveau": 1, "move": "charge" },
+      { "niveau": 1, "move": "jet" },
+      { "niveau": 1, "move": "esquive" }
+    ],
     "evolution": {
       "type": "biome",
       "biome": "lac",
